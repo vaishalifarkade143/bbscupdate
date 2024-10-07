@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:top="-60dp" >
+        <shape
+            android:shape="rectangle"
+            android:useLevel="false">
+            <solid android:color="#8DACA9A9" />
+            <size
+                android:width="60dp"
+                android:height="60dp" />
+        </shape>
+
+    </item>
+    <item android:gravity="center_horizontal|center_vertical"
+        android:width="@dimen/dimen_50dp"
+        android:height="@dimen/dimen_50dp">
+        <bitmap android:src="@drawable/reload"  android:gravity="center"/>
+    </item>
+
+</layer-list>

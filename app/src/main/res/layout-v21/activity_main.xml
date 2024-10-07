@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/tools"
+    app:ignore="NamespaceTypo">
+
+<!--    <include layout="@layout/toolbar"/>-->
+
+
+    <RelativeLayout
+        android:id="@+id/topLL"
+        android:paddingTop="@dimen/dimen_50dp"
+        android:padding="@dimen/dimen_20dp"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:contentInsetStartWithNavigation="0dp"
+        android:background="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <TextView
+            android:textSize="@dimen/dimen_18dp"
+            android:textColor="@color/WhiteSmoke"
+            android:layout_alignParentStart="true"
+            android:id="@+id/title"
+            android:layout_marginTop="@dimen/dimen_20dp"
+            android:layout_marginBottom="@dimen/dimen_5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/tmTxt"
+            android:textSize="@dimen/dimen_18dp"
+            android:textColor="@color/WhiteSmoke"
+            android:layout_toStartOf="@+id/timer"
+            android:layout_marginEnd="@dimen/dimen_5dp"
+            android:text="@string/timer"
+            android:layout_below="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            card_view:drawableStartCompat="@drawable/ic_clock_24" />
+
+<!--        android:visibility="gone"-->
+        <TextView
+            android:textSize="@dimen/dimen_18dp"
+            android:textColor="@color/WhiteSmoke"
+            android:layout_alignParentEnd="true"
+            android:id="@+id/timer"
+            android:layout_below="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/activityLL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/topLL"
+        android:layout_marginLeft="@dimen/dimen_15dp"
+        android:layout_marginTop="@dimen/dimen_15dp"
+        android:layout_marginRight="@dimen/dimen_15dp"
+        android:orientation="horizontal">
+        <!--        android:visibility="gone"-->
+        <TextView
+            android:id="@+id/attxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Attend: "
+            android:textSize="@dimen/dimen_18dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/att_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/attxt"
+            android:text="0"
+            android:textSize="@dimen/dimen_18dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/sr_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="0"
+            android:textSize="@dimen/dimen_18dp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+
+
+
+    <ProgressBar
+        android:layout_gravity="center|center_horizontal|center_vertical"
+        android:layout_centerVertical="true"
+        android:id="@+id/progressBar"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <RelativeLayout
+        android:id="@+id/Qlayout"
+        android:layout_below="@+id/activityLL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/prev"
+            android:visibility="gone"
+            android:layout_centerInParent="true"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/ic_arrow_prev_24"
+            android:layout_width="@dimen/dimen_50dp"
+            android:layout_height="@dimen/dimen_50dp"/>
+        <Button
+            android:id="@+id/next"
+            android:layout_centerInParent="true"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/ic_arrow_next_24"
+            android:contentDescription="NULL"
+            android:layout_width="@dimen/dimen_50dp"
+            android:layout_height="@dimen/dimen_50dp"/>
+        <ScrollView
+            android:paddingBottom="50dp"
+            android:layout_centerInParent="true"
+            android:layout_above="@+id/subLL"
+            android:layout_toEndOf="@+id/prev"
+            android:layout_toStartOf="@+id/next"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <androidx.cardview.widget.CardView
+            card_view:cardCornerRadius="@dimen/dimen_50dp"
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:layout_marginLeft="@dimen/dimen_10dp"
+            android:layout_marginRight="@dimen/dimen_10dp"
+            android:layout_marginBottom="@dimen/dimen_50dp"
+
+            android:paddingBottom="100dp"
+            card_view:cardPreventCornerOverlap="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textStyle="bold"
+                android:background="@color/Red"
+                android:textSize="@dimen/dimen_20dp"
+                android:layout_width="match_parent"
+                android:id="@+id/srno"
+                android:textColor="@color/WhiteSmoke"
+                android:textAlignment="center"
+                android:layout_gravity="center_horizontal"
+                android:padding="@dimen/dimen_2dp"
+                android:layout_height="wrap_content"/>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/dimen_20dp"
+                android:padding="@dimen/dimen_20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/que_img"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:scaleType="fitCenter"/>
+               <!-- <TextView
+                    android:layout_marginBottom="-50dp"
+                    android:layout_alignBaseline="@+id/que_img"
+                    android:id="@+id/reloadimg"
+                    android:layout_centerInParent="true"
+                    android:textSize="@dimen/dimen_20dp"
+                    android:text="Reload image"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>-->
+                </RelativeLayout>
+                <TextView
+                    android:breakStrategy="simple"
+                    android:textSize="@dimen/dimen_20dp"
+                    android:textColor="@color/black"
+                    android:hyphenationFrequency="none"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:padding="@dimen/dimen_2dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Que"/>
+
+                <View
+                    android:layout_marginTop="@dimen/dimen_10dp"
+                    android:background="@color/Green"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_1dp"/>
+                <TextView
+                    android:textColor="@color/black"
+                    android:textAlignment="center"
+                    android:text="Select the correct answer"
+                    android:layout_width="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:padding="@dimen/dimen_2dp"
+                    android:layout_height="wrap_content"/>
+                <View
+                    android:layout_marginBottom="@dimen/dimen_10dp"
+                    android:background="@color/Green"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_1dp"/>
+                <RadioGroup
+                    android:textSize="@dimen/dimen_15dp"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/optionRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+                </RadioGroup>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/clearChk"
+                    android:visibility="gone"
+                    android:text="Clear selection"
+                    android:layout_below="@id/optionRadioGroup"
+                    android:layout_alignParentEnd="true"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+        </ScrollView>
+
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        card_view:cardElevation="5dp"
+        android:id="@+id/subLL"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/btnSubmit"
+            android:layout_margin="@dimen/dimen_10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_50dp"
+            android:paddingRight="@dimen/dimen_10dp"
+            android:paddingLeft="@dimen/dimen_10dp"
+            android:text="Submit Quiz"
+            android:textColor="@color/white"
+            android:background="@drawable/btnsubmit"
+            />
+        <LinearLayout
+            android:id="@+id/wait"
+            android:visibility="gone"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_lay"
+            android:layout_margin="@dimen/dimen_10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/dimen_10dp"
+            android:textColor="@color/white"
+            >
+            <TextView
+                android:id="@+id/msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Please Wait.."/>
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="@dimen/dimen_20dp"
+                android:layout_height="@dimen/dimen_20dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+    </RelativeLayout>
+
+    <LinearLayout
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            xmlns:android="http://schemas.android.com/apk/res/android">
+
+            <TextView
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:textColor="@color/black"
+                android:padding="10dp"
+                android:background="@drawable/black_ovalshape"
+                android:id="@+id/couldnt_reach_internet_txt"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginBottom="100dp"
+                android:text="Can't reach the internet."/>
+
+
+            <RelativeLayout
+                android:visibility="gone"
+                android:layout_alignParentBottom="true"
+                android:id="@+id/internetOffRL"
+                android:background="@color/bgBottomNavigation"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+
+                >
+                <TextView
+                    android:layout_alignParentLeft="true"
+                    android:textColor="@color/white"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:layout_marginLeft="30dp"
+                    android:text="No connection"/>
+
+
+                <TextView
+                    android:id="@+id/try_again_txt"
+                    android:layout_alignParentRight="true"
+                    android:layout_gravity="right"
+                    android:textColor="@color/white"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:textStyle="bold"
+                    android:layout_marginRight="30dp"
+                    android:textAllCaps="true"
+                    android:textSize="14dp"
+                    android:text="TRY AGAIN"/>
+
+
+                <ProgressBar
+                    android:visibility="gone"
+                    android:layout_alignParentRight="true"
+                    android:id="@+id/simpleProgressBar_internet"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="35dp" />
+            </RelativeLayout>
+        </LinearLayout>
+        <!--internet code-->
+    </RelativeLayout>

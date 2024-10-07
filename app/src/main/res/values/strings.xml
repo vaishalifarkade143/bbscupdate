@@ -1,0 +1,105 @@
+<resources>
+    <string name="app_name">BBSC</string>
+    <!--    <string name="app_id">460498718218057</string>-->
+    <!--    <string name="app_id">274132226508797</string>-->
+    <!--    <string name="fb_login_protocol_scheme">fb274132226508797</string>   -->
+    <string name="app_id">970405716795828</string>
+    <string name="fb_login_protocol_scheme">fb970405716795828</string>
+
+
+    <!-- first slider xml -->
+
+    <string name="Sign_In">Login</string>
+    <string name="und_login"><u>Login</u></string>
+    <string name="und_signup"><u>Sign up</u></string>
+
+
+    <!--activity_sign_in xml -->
+    <string name="Sign_in_with_email"> Login with email</string>
+    <string name="Sign_in_with_Google"> Login with Google</string>
+    <string name="Sign_in_with_Facebook"> Login with Facebook</string>
+    <string name="New_here"> Don\'t have an account? </string>
+    <string name="Create_an_account"> Sign up</string>
+    <string name="Terms_of_Use">Terms of Use</string>
+    <string name="Privacy_Policy">Privacy Policy</string>
+
+
+    <!--activity_sign_in_with_email xml -->
+
+
+    <!--activity_forgot_password xml -->
+
+
+    <!-- activity_create_an_account xml -->
+
+    <string name="Sign_up_with_email">Sign up with email</string>
+    <string name="Sign_up_with_Google">Sign up with Google</string>
+    <string name="Sign_up_with_Facebook">Sign up with Facebook</string>
+    <string name="Have_an_account">Have an account?</string>
+
+
+    <!-- activity_success_login xml -->
+
+
+    <!-- activity_success_reset_password -->
+
+
+    <!-- detail activity xml -->
+
+    <string name="Buy_Now">Buy Now</string>
+    <string name="students_enrolled">Students Enrolled</string>
+    <string name="Created_by">Created by</string>
+    <string name="updated">Updated on</string>
+    <string name="hours">hours</string>
+    <string name="btn1">btn1</string>
+    <string name="off">off</string>
+    <string name="Add_to_Wishlist">Add to Wishlist</string>
+    <string name="What_Will_I_Learn">What Will I Learn?</string>
+    <string name="Description">Description</string>
+    <string name="Courses">Courses</string>
+    <string name="Rating">Rating</string>
+    <string name="Curriculum">Curriculum</string>
+    <string name="Lectures">Lectures</string>
+    <string name="Total">Total</string>
+    <string name="left_bracket">(</string>
+    <string name="right_braket">)</string>
+
+
+    <!-- activity_cart_and_wishlist xml -->
+
+
+    <!--activity_main xml -->
+
+
+    <!--activity_profile_detail xml -->
+
+    <!--activity_registration xml -->
+    <string name="login">Login</string>
+    <!--    <string name="Have_an_account">Have an account</string>-->
+    <string name="Sign_in">Login</string>
+
+
+    <string name="Remove">Remove</string>
+
+
+    <string name="tab_1">Lectures</string>
+    <string name="tab_2">More</string>
+    <string-array name="courses_array">
+        <item>All courses    </item>
+        <item>Favorite courses  </item>
+        <item>Archived courses   </item>
+        <item>Downloaded courses   </item>
+
+    </string-array>
+    <string name="title_activity_qa_">QA_Activity</string>
+    <string name="update_message">New updates available</string>
+    <string name="cancel">CANCEL</string>
+    <string name="update_now">UPDATE NOW</string>
+    <string name="title_dynamicfeature">DynamicMod</string>
+    <string name="title_dynamic_feature">DynamicFeature</string>
+    <string name="about">About AiCademy</string>
+    <string name="hold">Thanks for attending the quiz! \nYour result is on hold.</string>
+    <string name="timer">Timer:</string>
+    <string name="submit_msg">Are you sure you want to <b>submit final answers</b>? \nYou will not be able to return to this test</string>
+
+</resources>

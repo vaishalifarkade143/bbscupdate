@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+    <resources>
+
+
+
+    <color name="colorPrimary">#2d3b92</color>
+    <color name="colorPrimaryDark">#2d3b92</color>
+    <color name="colorAccent">#2d3b92</color>
+
+
+
+    <color name="bgBottomNavigation">#28303B</color>
+
+    <color name="black">#000000</color>
+
+
+    <color name="background">#283581</color>
+
+    <color name="text_color">#eff0f1</color>
+
+
+
+
+
+
+    <color name="trans">#00000000</color>
+
+    <color name="White">#FFFFFF</color>
+
+        <color name="Pink">#FFC0CB</color>
+
+        <color name="Red">#FF0000</color>
+
+        <color name="WhiteSmoke">#F5F5F5</color>
+
+        <color name="SandyBrown">#F4A460</color>
+
+        <color name="LightGrey">#D3D3D3</color>
+
+        <color name="DarkGray">#A9A9A9</color>
+
+        <color name="MediumPurple">#9370DB</color>
+
+        <color name="Gray">#808080</color>
+
+        <color name="MediumAquamarine">#66CDAA</color>
+
+        <color name="RoyalBlue">#4169E1</color>
+
+        <color name="MediumSeaGreen">#3CB371</color>
+
+        <color name="Green">#008000</color>
+
+        <color name="Black">#000000</color>
+
+        <color name="progressbar_light_gray">#F2F3F5</color>
+    <color name="progressbar_dark_gray">#A1A7B3</color>
+
+        <color name="description_text">#BE000000</color>
+
+
+    <color name="dark_gray">#AB0A0A0A</color>
+
+    <color name="background_light_gray">#110A0A0A</color>
+
+    <color name="white">#ffffff</color>
+
+        <color name="payumoney_accent">#7AA4D5</color>
+    <color name="payumoney_app_background_color">#EEEEEE</color>
+    <color name="payumoney_black">#000000</color>
+    <color name="payumoney_color_withdraw_label">#888888</color>
+    <color name="payumoney_color_withdraw_label_dark">#444444</color>
+    <color name="payumoney_grey">#DCDCDC</color>
+    <color name="payumoney_label_color">#6B6B6B</color>
+    <color name="payumoney_primary">#E42D3B92</color>
+    <color name="payumoney_primary_dark">#1D2765</color>
+    <color name="payumoney_separator_color">#F3F2F2</color>
+    <color name="payumoney_text_color">#575757</color>
+    <color name="payumoney_white">#FFFFFF</color>
+    <color name="yellow">#FFC107</color>
+
+</resources>

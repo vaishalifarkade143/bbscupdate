@@ -1,0 +1,3376 @@
+//package com.bbsc.Adapter;
+//
+//import android.Manifest;
+//import android.annotation.SuppressLint;
+//import android.app.Activity;
+//import android.content.Context;
+//import android.content.ContextWrapper;
+//import android.content.Intent;
+//import android.content.pm.PackageManager;
+//import android.graphics.Bitmap;
+//import android.graphics.BitmapFactory;
+//import android.graphics.Color;
+//import android.net.ConnectivityManager;
+//import android.net.NetworkInfo;
+//import android.os.CountDownTimer;
+//import android.text.Html;
+//import android.util.Log;
+//import android.view.Gravity;
+//import android.view.LayoutInflater;
+//import android.view.View;
+//import android.view.ViewGroup;
+//import android.widget.Button;
+//import android.widget.LinearLayout;
+//import android.widget.RadioGroup;
+//import android.widget.TextView;
+//import android.widget.Toast;
+//
+//import androidx.annotation.NonNull;
+//import androidx.core.app.ActivityCompat;
+//import androidx.core.content.ContextCompat;
+//import androidx.recyclerview.widget.RecyclerView;
+//
+//import com.bbsc.Activity.MainActivity;
+//import com.bbsc.Activity.QuizListActivity;
+//import com.bbsc.Api.Api;
+//import com.bbsc.Api.RetrofitClient;
+//import com.bbsc.DB.DBManager;
+//import com.bbsc.Model.GetDetail;
+//import com.bbsc.Model.QlistRes;
+//import com.bbsc.Model.Quiz;
+//import com.bbsc.Model.User;
+//import com.bbsc.R;
+//import com.bbsc.SharedPrefManagerFile.SharedPrefManager;
+//import com.google.gson.Gson;
+//
+//import org.json.JSONArray;
+//
+//import java.io.File;
+//import java.io.FileOutputStream;
+//import java.io.IOException;
+//import java.net.URL;
+//import java.text.DateFormat;
+//import java.text.DecimalFormat;
+//import java.text.ParseException;
+//import java.text.SimpleDateFormat;
+//import java.time.ZonedDateTime;
+//import java.util.Calendar;
+//import java.util.Date;
+//import java.util.List;
+//import java.util.Locale;
+//import java.util.TimeZone;
+//import java.util.concurrent.TimeUnit;
+//
+//import retrofit2.Call;
+//import retrofit2.Callback;
+//import retrofit2.Response;
+//
+//import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_WRITE;
+//import static com.facebook.FacebookSdk.getApplicationContext;
+//
+//
+////before start visible
+//public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
+//
+//    Context context;
+//    List<Quiz.Qinfo> ques;
+//    RadioGroup.LayoutParams rprms;
+//    Calendar calendar;
+//    DateFormat formatter ;
+//    CountDownTimer countDownTimer = null;
+//    User user;
+//    List<Quiz.Qinfo> listItems;
+//    private DBManager dbManager;
+//    @SuppressLint("DefaultLocale") String hms;
+//    String format = "yyyy-MM-dd HH:mm:ss";
+//    String mSavedInfo;
+//
+//    boolean getrlistactive = true;
+//    SimpleDateFormat sdf;
+//    private Quiz.Qinfo QueResponse;
+//    @SuppressLint("SimpleDateFormat")
+//    public QuizAdapter(Context mContext, List<Quiz.Qinfo> ques) {
+//        this.context = mContext;
+//        this.ques = ques;
+//        Log.d("ques_size", String.valueOf(ques.size()));
+//        sdf = new SimpleDateFormat(format);
+//        sdf.setTimeZone(TimeZone.getTimeZone("GMT+5:30"));
+//        user = SharedPrefManager.getInstance(mContext).getUser();
+//        dbManager = new DBManager(context);
+//        dbManager.open();
+//
+//        listItems = dbManager.getAllQuizzes();
+//        dbManager.close();
+//
+//    }
+//
+//    @NonNull
+//    @Override
+//    public QuizAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+//        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_quiz, viewGroup, false);
+//        return new ViewHolder(view);
+//    }
+//
+//
+//
+//    @SuppressLint({"SetTextI18n", "SimpleDateFormat"})
+//    @Override
+//    public void onBindViewHolder(@NonNull QuizAdapter.ViewHolder holder, int position) {
+//        // Get the current item in the list
+//        QueResponse = ques.get(position);
+//
+//        // Log the position and check if QueResponse is null
+//        if (QueResponse == null) {
+//            Log.e("QuizAdapter", "Item at position " + position + " is null");
+//            return; // Skip binding this view
+//        }
+//
+//        Log.d("QuizAdapter", "Binding view for position: " + position);
+//
+//        // Set exam title
+//        holder.title.setText(QueResponse.getExamTitle());
+//
+//        // Handle description
+//        if (QueResponse.getDescription() != null && !QueResponse.getDescription().isEmpty()) {
+//            holder.desc.setText(Html.fromHtml(Html.fromHtml(QueResponse.getDescription()).toString()));
+//            holder.desc.setVisibility(View.VISIBLE);
+//        } else {
+//            holder.desc.setVisibility(View.GONE);
+//        }
+//
+//        // Handle instructions
+//        if (QueResponse.getInstructions() != null && !QueResponse.getInstructions().isEmpty()) {
+//            holder.inst.setText(Html.fromHtml(Html.fromHtml(QueResponse.getInstructions()).toString()));
+//            holder.instLL.setVisibility(View.VISIBLE);
+//        } else {
+//            holder.instLL.setVisibility(View.GONE);
+//        }
+//
+//        String compulsoryQue = QueResponse.getCompulsory_que();
+//
+//// Check if the string is not null and not empty
+//        if (compulsoryQue != null && !compulsoryQue.isEmpty()) {
+//            try {
+//                int compulsoryQueValue = Integer.parseInt(compulsoryQue);
+//                if (compulsoryQueValue > 0) {
+//                    holder.CompQueLL.setVisibility(View.VISIBLE);
+//                    holder.compQue.setText(compulsoryQue);
+//                } else {
+//                    holder.CompQueLL.setVisibility(View.GONE);
+//                }
+//            } catch (NumberFormatException e) {
+//                // Handle the case where parsing fails
+//                holder.CompQueLL.setVisibility(View.GONE);
+//            }
+//        } else {
+//            holder.CompQueLL.setVisibility(View.GONE);
+//        }
+//
+//        // Format and set marks and dates
+//        holder.marks.setText(QueResponse.getTotalMarks());
+//        holder.exdate.setText(QueResponse.getEx_start_date());
+//
+//        String dur_map = "min";
+//        int durationHours = 0, durationMinutes = 0;
+//        try {
+//            durationHours = Integer.parseInt(QueResponse.getDurationH());
+//            durationMinutes = Integer.parseInt(QueResponse.getDurationM());
+//            if (durationHours > 0) dur_map = "hr";
+//        } catch (NumberFormatException e) {
+//            Log.e("QuizAdapter", "Error parsing duration values", e);
+//        }
+//
+//        DecimalFormat durFormat = new DecimalFormat("00");
+//        holder.dur.setText(durFormat.format(durationHours) + ":" + durFormat.format(durationMinutes) + " " + dur_map);
+//
+//        holder.on_time.setText(convert12(QueResponse.getEx_start_time()) + " - " + convert12(QueResponse.getEx_end_time()));
+//
+//        holder.ques.setText(QueResponse.getQcount());
+//        holder.passing.setText(QueResponse.getPassingScore() + "%");
+//
+//        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+//        String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+//
+//        // Log the current date and time
+//        Log.d("QuizAdapter", "Current Date: " + currentDate);
+//        Log.d("QuizAdapter", "Current Time: " + currentTime);
+//
+//        // Check for null or empty exam start date
+//        if (QueResponse.getEx_start_date() == null || QueResponse.getEx_start_time() == null) {
+//            Log.e("QuizAdapter", "Exam start date or time is missing for position: " + position);
+//            return;
+//        }
+//
+//        // Date format used for parsing
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+//
+//        try {
+//            String startDateString = QueResponse.getEx_start_date() + " " + QueResponse.getEx_start_time();
+//            String endDateString = QueResponse.getEx_end_date() + " " + QueResponse.getEx_end_time();
+//
+//            Date startDate = sdf.parse(startDateString);
+//            Date endDate = sdf.parse(endDateString);
+//            Date currentDateTime = sdf.parse(currentDate + " " + currentTime);
+//
+//            if (startDate != null && endDate != null && currentDateTime != null) {
+//                long timeUntilStart = startDate.getTime() - currentDateTime.getTime();
+//                long timeUntilEnd = endDate.getTime() - currentDateTime.getTime();
+//
+//                if (timeUntilStart > 0) {
+//                    handleUpcomingQuiz(holder, timeUntilStart, timeUntilEnd, position);
+//                } else if (timeUntilEnd > 0) {
+//                    handleOngoingQuiz(holder, timeUntilEnd, position);
+//                } else {
+//                    handleExpiredQuiz(holder);
+//                }
+//            } else {
+//                Log.e("QuizAdapter", "Error parsing date or time for position: " + position);
+//
+//            }
+//        } catch (ParseException e) {
+//            Log.e("QuizAdapter", "Error parsing date/time strings", e);
+//            handleInvalidDates(holder);
+//        }
+//
+//
+//        holder.startBtn.setOnClickListener(new View.OnClickListener() {
+//        @Override
+//        public void onClick(View view) {
+//            ConnectivityManager connectivityManager=(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//            NetworkInfo networkInfo=connectivityManager.getActiveNetworkInfo();
+//            if (networkInfo ==null) {
+//                toastMsg("Check internet connection!");
+//            }
+//            else{
+//                Date dateObj3 = null, dateObj4 = null;
+//                try {
+//                    dateObj3 = sdf.parse(ques.get(holder.getAdapterPosition()).getEx_end_date() + " " + ques.get(holder.getAdapterPosition()).getEx_end_time());
+//                    dateObj4 = sdf.parse(currentDate + " " + currentTime);
+//                    Log.d("dateObj3dateObj3", dateObj3 + "   " + dateObj4);
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                DecimalFormat crunchifyFormatter2 = new DecimalFormat("###,###");
+//
+//                // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
+//                long diff2 = dateObj3.getTime() - dateObj4.getTime();
+//
+//                int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+//
+//                int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+//
+//                int diffmin2 = (int) (diff2 / (60 * 1000));
+//
+//                int diffsec2 = (int) (diff2 / (1000));
+//                Log.d("diff22", diffhours2 + " :: " + diffsec2 + " :: " + diffmin2);
+//                if (diffhours2 > 0 || diffmin2 > 0 || diffsec2 > 0) {
+//
+//
+//                    Log.d("selexam", String.valueOf(ques.get(holder.getAdapterPosition()).getExamId() + " position: " + holder.getAdapterPosition()));
+//                    Intent i = new Intent(context, MainActivity.class);
+//                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//                    i.putExtra("exam_id", ques.get(holder.getAdapterPosition()).getExamId());
+//                    i.putExtra("exam_title", ques.get(holder.getAdapterPosition()).getExamTitle());
+//                    i.putExtra("st_date", ques.get(holder.getAdapterPosition()).getEx_start_date());
+//                    i.putExtra("st_time", ques.get(holder.getAdapterPosition()).getEx_start_time());
+//                    i.putExtra("end_date", ques.get(holder.getAdapterPosition()).getEx_end_date());
+//                    i.putExtra("end_time", ques.get(holder.getAdapterPosition()).getEx_end_time());
+//                    i.putExtra("exam_hr", ques.get(holder.getAdapterPosition()).getDurationH());
+//                    i.putExtra("exam_min", ques.get(holder.getAdapterPosition()).getDurationM());
+//                    i.putExtra("showtime", ques.get(holder.getAdapterPosition()).getTimeLimitB());
+//                    i.putExtra("seeresult", ques.get(holder.getAdapterPosition()).getSeeResult());
+//                    i.putExtra("att_no", ques.get(holder.getAdapterPosition()).getAtt());
+//                    Log.d("att_no is" , String.valueOf(ques.get(holder.getAdapterPosition()).getAtt()));
+//                    context.startActivity(i);
+//                } else {
+//                    toastMsg("Quiz time expired");
+//                    holder.startBtn.setVisibility(View.GONE);
+//                    holder.expire.setVisibility(View.VISIBLE);
+//                    if (Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) > 1) {
+//                        holder.expire.setText("Submited.");
+//                        holder.expire.setTextColor(Color.parseColor("#FF008000"));
+//                    } else
+//                        holder.expire.setText("Expired.");
+//                }
+//            }
+//        }
+//    });
+//
+//
+//
+//    }
+//
+//
+//    private void handleUpcomingQuiz(@NonNull QuizAdapter.ViewHolder holder, long timeUntilStart, long timeUntilEnd, int position) {
+//        holder.startBtn.setVisibility(View.GONE);
+//        holder.timer_LL.setVisibility(View.VISIBLE);
+//        holder.expire.setVisibility(View.GONE);
+//
+//        countDownTimer = new CountDownTimer(timeUntilStart, 1000) {
+//            @SuppressLint("DefaultLocale")
+//            @Override
+//            public void onTick(long millisUntilFinished) {
+//                updateCountdown(holder.timer, millisUntilFinished);
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                holder.timer.setText("00:00:00");
+//                holder.startBtn.setVisibility(View.VISIBLE);
+//                holder.timer_LL.setVisibility(View.GONE);
+//
+////                holder.tmTxt.setVisibility(View.GONE);
+//
+//                holder.expire.setVisibility(View.GONE);
+//            }
+//        }.start();
+//    }
+//
+//    private void handleOngoingQuiz(@NonNull QuizAdapter.ViewHolder holder, long timeUntilEnd, int position) {
+//        // Show the start button if the exam is ongoing
+//        holder.tmTxt.setVisibility(View.GONE); // Hide the timer text
+//        holder.startBtn.setVisibility(View.VISIBLE);
+//        holder.timer_LL.setVisibility(View.GONE);
+//        holder.expire.setVisibility(View.GONE);
+//
+//        // Set up the countdown timer until the end of the exam
+//        countDownTimer = new CountDownTimer(timeUntilEnd, 1000) {
+//            @SuppressLint("DefaultLocale")
+//            @Override
+//            public void onTick(long millisUntilFinished) {
+//                updateCountdown(holder.timer, millisUntilFinished);
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                holder.timer.setText("00:00:00");
+//                holder.startBtn.setVisibility(View.GONE);  // Hide the button once the exam has expired
+//                holder.timer_LL.setVisibility(View.GONE);
+//                holder.expire.setVisibility(View.VISIBLE);
+//                holder.expire.setText("Expired");
+//            }
+//        }.start();
+//    }
+//
+//
+//
+//    private void handleExpiredQuiz(@NonNull QuizAdapter.ViewHolder holder) {
+//        holder.startBtn.setVisibility(View.GONE);
+//        holder.timer_LL.setVisibility(View.GONE);
+//        holder.expire.setVisibility(View.VISIBLE);
+//        holder.expire.setText("Expired");
+//    }
+//
+//    private void handleInvalidDates(@NonNull QuizAdapter.ViewHolder holder) {
+//        holder.startBtn.setVisibility(View.GONE);
+//        holder.timer_LL.setVisibility(View.GONE);
+//        holder.expire.setVisibility(View.GONE);
+//    }
+//
+//    private void updateCountdown(TextView timerView, long millisUntilFinished) {
+//        int hours = (int) (millisUntilFinished / (1000 * 60 * 60));
+//        millisUntilFinished %= (1000 * 60 * 60);
+//        int minutes = (int) (millisUntilFinished / (1000 * 60));
+//        millisUntilFinished %= (1000 * 60);
+//        int seconds = (int) (millisUntilFinished / 1000);
+//        timerView.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+//    }
+//
+//
+//
+//    private void handleStartButtonClick(@NonNull QuizAdapter.ViewHolder holder, int position, String currentDate, String currentTime) {
+//        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+//        if (networkInfo == null) {
+//            toastMsg("Check internet connection!");
+//            return;
+//        }
+//
+//        // Similar date parsing logic as in onBindViewHolder() method
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+//            Date endDate = sdf.parse(QueResponse.getEx_end_date() + " " + QueResponse.getEx_end_time());
+//            Date currentDateTime = sdf.parse(currentDate + " " + currentTime);
+//
+//            if (endDate != null && currentDateTime != null) {
+//                long timeDifference = endDate.getTime() - currentDateTime.getTime();
+//                if (timeDifference <= 0) {
+//                    toastMsg("Quiz already expired!");
+//                } else {
+//                    Intent intent = new Intent(context, MainActivity.class);
+//                    Log.d( "start click: ","ijdsioojfiosdj");
+//                    intent.putExtra("exam_id", ques.get(position).getExamId());
+//                    context.startActivity(intent);
+//                }
+//            }
+//        } catch (ParseException e) {
+//            Log.e("QuizAdapter", "Error parsing end date or current time", e);
+//            toastMsg("Error starting quiz!");
+//        }
+//    }
+//
+//
+//
+//
+//    public  void  toastMsg(String msg){
+//
+//        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE ); ;
+//        View toast = inflater.inflate(R.layout.toast, null);
+//
+//        TextView text = (TextView) toast.findViewById(R.id.toast_txt);
+//        text.setText(msg);
+//        Toast view  = new Toast(context);
+//        // Set layout to toast
+//        view.setView(toast);
+//        view.setGravity(Gravity.BOTTOM| Gravity.FILL_HORIZONTAL, 0, 0);
+//        view.setDuration(Toast.LENGTH_SHORT);
+//        view.show();
+//
+//    }
+//    public String convert12(String str)
+//    {
+//        @SuppressLint("SimpleDateFormat") SimpleDateFormat _24HourSDF = new SimpleDateFormat("HH:mm:ss");
+//        @SuppressLint("SimpleDateFormat") SimpleDateFormat _12HourSDF = new SimpleDateFormat("hh:mm a");
+//        Date _24HourDt = null;
+//        try {
+//            _24HourDt = _24HourSDF.parse(str);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+////        System.out.println(_24HourDt);
+//        assert _24HourDt != null;
+////        System.out.println(_12HourSDF.format(_24HourDt));
+//
+//        return _12HourSDF.format(_24HourDt);
+//
+//
+//    }
+//
+//
+//    private void getList(String examid, String att, String modify) {
+//        if(getrlistactive) {
+//            if(modify.equals("1")){
+//
+//            }
+//            Log.d("Ques_res", "Ques_resQues_res" + examid);
+//            Api apiService = RetrofitClient.getApiService();
+//            Call<QlistRes> userResponse = apiService.QList(examid);
+//            userResponse.enqueue(new Callback<QlistRes>() {
+//                public QlistRes QueResponse;
+//
+//                @Override
+//                public void onResponse(Call<QlistRes> call, Response<QlistRes> response) {
+//                    QueResponse = response.body();
+//                    GetDetail.current_que = QueResponse.getData();
+//                    Log.d("Ques_res", new Gson().toJson(QueResponse));
+//                    GetDetail.att_data = new JSONArray();
+//
+//                    JSONArray jsonArray = new JSONArray();
+//                    for (QlistRes.Ques quearr : QueResponse.getData()) {
+//                        Log.d("saveToInternalStorage11", "saveToInternalStorage");
+//
+//                        if (!quearr.getImage().isEmpty()){
+////                            if (checkPermission()) {
+//                            URL url = null;
+//                            Bitmap bitmap = null;
+//                            String urlString = quearr.getImage();
+//                            urlString=  urlString.substring(urlString.lastIndexOf('/') + 1).split("\\?")[0].split("#")[0];
+//
+//                            try {
+//                                url = new URL("http://bbsc.createonlineacademy.com/public/uploads/questions/1622104732.jpg");
+//                                bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                            mSavedInfo = saveToInternalStorage(bitmap, urlString);
+//                            Log.d("quearr.getImage()", quearr.getImage());
+//                    }
+//
+//
+////                        add in sqllite
+//                        dbManager.open();
+//                        dbManager.insertQuesList("Questions", QueResponse.getData());
+//                        dbManager.close();
+//                    }
+//
+//                    Log.d("att_data***", new Gson().toJson(GetDetail.att_data));
+//
+//                    SharedPrefManager.getInstance(context).addQuesData(jsonArray.toString(), jsonArray.toString(), QueResponse.getData());
+//                }
+//
+//                @Override
+//                public void onFailure(Call<QlistRes> call, Throwable t) {
+//                    getList(examid, att, "modify");
+//                    Log.d("Ques_res", "Ques_resFailure");
+//                }
+//            });
+//
+//            getrlistactive = false;
+//        }
+//    }
+//    public boolean checkPermission() {
+//        if (ActivityCompat.checkSelfPermission((Activity)context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions((Activity)context, new String[]{
+//                    android.Manifest.permission.ACCESS_FINE_LOCATION
+//            }, 10);
+//        }
+//        int READ_EXTERNAL_PERMISSION = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
+//        if((READ_EXTERNAL_PERMISSION != PackageManager.PERMISSION_GRANTED)) {
+//            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_WRITE);
+//            return false;
+//        }
+//        return true;
+//    }
+//
+//    private String saveToInternalStorage(Bitmap bitmapImage,String urlString){
+//
+//        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+//
+//        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+//        File mypath = new File(directory, urlString);
+//        if(!mypath.exists()) {
+//            FileOutputStream fos = null;
+//
+//            try {
+//
+//                fos = new FileOutputStream(mypath);
+//
+//                bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+//
+//            } catch (Exception e) {
+//
+//                e.printStackTrace();
+//
+//            } finally {
+//
+//                try {
+//                    fos.close();
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//        }
+//        return directory.getAbsolutePath();
+//    }
+//
+//    @Override
+//    public int getItemCount() {
+//        return ques.size();
+//    }
+//
+//    @Override
+//    public long getItemId(int position) {
+//        return position;
+//    }
+//
+//    @Override
+//    public int getItemViewType(int position) {
+//        return position;
+//    }
+//
+//    public class ViewHolder extends RecyclerView.ViewHolder{
+//        TextView title,desc,inst, marks, ques, passing, tmTxt, timer,expire, exdate, dur, on_time, compQue;
+//        Button startBtn;
+//        LinearLayout instLL, timer_LL, CompQueLL, dateLL, ex_timeLL, durLL;
+//
+//        public ViewHolder(View view) {
+//            super(view);
+//            title = view.findViewById(R.id.title);
+//            desc = view.findViewById(R.id.desc);
+//            inst = view.findViewById(R.id.instruction);
+//            marks = view.findViewById(R.id.marks);
+//            ques = view.findViewById(R.id.noQue);
+//            passing = view.findViewById(R.id.passing);
+//            startBtn = view.findViewById(R.id.startBtn);
+//            instLL = view.findViewById(R.id.inst);
+//            tmTxt = view.findViewById(R.id.tmTxt);
+//            timer = view.findViewById(R.id.timer);
+//            expire = view.findViewById(R.id.expire);
+//            timer_LL = view.findViewById(R.id.timer_LL);
+//            exdate = view.findViewById(R.id.exdate);
+//            dur = view.findViewById(R.id.duration);
+//            on_time = view.findViewById(R.id.start_tm);
+//            CompQueLL = view.findViewById(R.id.CompQueLL);
+//            compQue = view.findViewById(R.id.compQue);
+//            dateLL = view.findViewById(R.id.dateLL);
+//            ex_timeLL = view.findViewById(R.id.ex_timeLL);
+//            durLL = view.findViewById(R.id.durLL);
+//        }
+//    }
+//}
+//
+//
+
+
+
+
+
+
+
+
+
+
+//before make changes for retake
+
+
+
+
+
+
+
+
+
+
+
+//retake logic
+
+//package com.bbsc.Adapter;
+//
+//import android.Manifest;
+//import android.annotation.SuppressLint;
+//import android.app.Activity;
+//import android.content.Context;
+//import android.content.ContextWrapper;
+//import android.content.Intent;
+//import android.content.pm.PackageManager;
+//import android.graphics.Bitmap;
+//import android.graphics.BitmapFactory;
+//import android.graphics.Color;
+//import android.net.ConnectivityManager;
+//import android.net.NetworkInfo;
+//import android.os.CountDownTimer;
+//import android.text.Html;
+//import android.util.Log;
+//import android.view.Gravity;
+//import android.view.LayoutInflater;
+//import android.view.View;
+//import android.view.ViewGroup;
+//import android.widget.Button;
+//import android.widget.LinearLayout;
+//import android.widget.RadioGroup;
+//import android.widget.TextView;
+//import android.widget.Toast;
+//
+//import androidx.annotation.NonNull;
+//import androidx.core.app.ActivityCompat;
+//import androidx.core.content.ContextCompat;
+//import androidx.recyclerview.widget.RecyclerView;
+//
+//import com.bbsc.Activity.MainActivity;
+//import com.bbsc.Activity.QuizListActivity;
+//import com.bbsc.Api.Api;
+//import com.bbsc.Api.RetrofitClient;
+//import com.bbsc.DB.DBManager;
+//import com.bbsc.Model.GetDetail;
+//import com.bbsc.Model.QlistRes;
+//import com.bbsc.Model.Quiz;
+//import com.bbsc.Model.User;
+//import com.bbsc.R;
+//import com.bbsc.SharedPrefManagerFile.SharedPrefManager;
+//import com.google.gson.Gson;
+//
+//import org.json.JSONArray;
+//
+//import java.io.File;
+//import java.io.FileOutputStream;
+//import java.io.IOException;
+//import java.net.URL;
+//import java.text.DateFormat;
+//import java.text.DecimalFormat;
+//import java.text.ParseException;
+//import java.text.SimpleDateFormat;
+//import java.time.ZonedDateTime;
+//import java.util.Calendar;
+//import java.util.Date;
+//import java.util.List;
+//import java.util.Locale;
+//import java.util.TimeZone;
+//import java.util.concurrent.TimeUnit;
+//
+//import retrofit2.Call;
+//import retrofit2.Callback;
+//import retrofit2.Response;
+//
+//import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_WRITE;
+//import static com.facebook.FacebookSdk.getApplicationContext;
+//
+//
+////before start visible
+//public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
+//
+//    Context context;
+//    List<Quiz.Qinfo> ques;
+//    RadioGroup.LayoutParams rprms;
+//    Calendar calendar;
+//    DateFormat formatter ;
+//    CountDownTimer countDownTimer = null;
+//    User user;
+//    List<Quiz.Qinfo> listItems;
+//    private DBManager dbManager;
+//    @SuppressLint("DefaultLocale") String hms;
+//    String format = "yyyy-MM-dd HH:mm:ss";
+//    String mSavedInfo;
+//
+//    boolean getrlistactive = true;
+//    SimpleDateFormat sdf;
+//    private Quiz.Qinfo QueResponse;
+//    @SuppressLint("SimpleDateFormat")
+//    public QuizAdapter(Context mContext, List<Quiz.Qinfo> ques) {
+//        this.context = mContext;
+//        this.ques = ques;
+//        Log.d("ques_size", String.valueOf(ques.size()));
+//        sdf = new SimpleDateFormat(format);
+//        sdf.setTimeZone(TimeZone.getTimeZone("GMT+5:30"));
+//        user = SharedPrefManager.getInstance(mContext).getUser();
+//        dbManager = new DBManager(context);
+//        dbManager.open();
+//
+//        listItems = dbManager.getAllQuizzes();
+//        dbManager.close();
+//
+//    }
+//
+//    @NonNull
+//    @Override
+//    public QuizAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+//        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_quiz, viewGroup, false);
+//        return new ViewHolder(view);
+//    }
+//
+//
+//
+//    @SuppressLint({"SetTextI18n", "SimpleDateFormat"})
+//    @Override
+//    public void onBindViewHolder(@NonNull QuizAdapter.ViewHolder holder, int position) {
+//        // Get the current item in the list
+//        QueResponse = ques.get(position);
+//
+//        // Log the position and check if QueResponse is null
+//        if (QueResponse == null) {
+//            Log.e("QuizAdapter", "Item at position " + position + " is null");
+//            return; // Skip binding this view
+//        }
+//
+//        Log.d("QuizAdapter", "Binding view for position: " + position);
+//
+//        // Set exam title
+//        holder.title.setText(QueResponse.getExamTitle());
+//
+//        // Handle description
+//        if (QueResponse.getDescription() != null && !QueResponse.getDescription().isEmpty()) {
+//            holder.desc.setText(Html.fromHtml(Html.fromHtml(QueResponse.getDescription()).toString()));
+//            holder.desc.setVisibility(View.VISIBLE);
+//        } else {
+//            holder.desc.setVisibility(View.GONE);
+//        }
+//
+//        // Handle instructions
+//        if (QueResponse.getInstructions() != null && !QueResponse.getInstructions().isEmpty()) {
+//            holder.inst.setText(Html.fromHtml(Html.fromHtml(QueResponse.getInstructions()).toString()));
+//            holder.instLL.setVisibility(View.VISIBLE);
+//        } else {
+//            holder.instLL.setVisibility(View.GONE);
+//        }
+//
+//        String compulsoryQue = QueResponse.getCompulsory_que();
+//
+//// Check if the string is not null and not empty
+//        if (compulsoryQue != null && !compulsoryQue.isEmpty()) {
+//            try {
+//                int compulsoryQueValue = Integer.parseInt(compulsoryQue);
+//                if (compulsoryQueValue > 0) {
+//                    holder.CompQueLL.setVisibility(View.VISIBLE);
+//                    holder.compQue.setText(compulsoryQue);
+//                } else {
+//                    holder.CompQueLL.setVisibility(View.GONE);
+//                }
+//            } catch (NumberFormatException e) {
+//                // Handle the case where parsing fails
+//                holder.CompQueLL.setVisibility(View.GONE);
+//            }
+//        } else {
+//            holder.CompQueLL.setVisibility(View.GONE);
+//        }
+//
+//        // Format and set marks and dates
+//        holder.marks.setText(QueResponse.getTotalMarks());
+//        holder.exdate.setText(QueResponse.getEx_start_date());
+//
+//        String dur_map = "min";
+//        int durationHours = 0, durationMinutes = 0;
+//        try {
+//            durationHours = Integer.parseInt(QueResponse.getDurationH());
+//            durationMinutes = Integer.parseInt(QueResponse.getDurationM());
+//            if (durationHours > 0) dur_map = "hr";
+//        } catch (NumberFormatException e) {
+//            Log.e("QuizAdapter", "Error parsing duration values", e);
+//        }
+//
+//        DecimalFormat durFormat = new DecimalFormat("00");
+//        holder.dur.setText(durFormat.format(durationHours) + ":" + durFormat.format(durationMinutes) + " " + dur_map);
+//
+//        holder.on_time.setText(convert12(QueResponse.getEx_start_time()) + " - " + convert12(QueResponse.getEx_end_time()));
+//
+//        holder.ques.setText(QueResponse.getQcount());
+//        holder.passing.setText(QueResponse.getPassingScore() + "%");
+//
+//        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+//        String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+//
+//        // Log the current date and time
+//        Log.d("QuizAdapter", "Current Date: " + currentDate);
+//        Log.d("QuizAdapter", "Current Time: " + currentTime);
+//
+//        // Check for null or empty exam start date
+//        if (QueResponse.getEx_start_date() == null || QueResponse.getEx_start_time() == null) {
+//            Log.e("QuizAdapter", "Exam start date or time is missing for position: " + position);
+//            return;
+//        }
+//
+//        // Date format used for parsing
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+//
+//        try {
+//            String startDateString = QueResponse.getEx_start_date() + " " + QueResponse.getEx_start_time();
+//            String endDateString = QueResponse.getEx_end_date() + " " + QueResponse.getEx_end_time();
+//
+//            Date startDate = sdf.parse(startDateString);
+//            Date endDate = sdf.parse(endDateString);
+//            Date currentDateTime = sdf.parse(currentDate + " " + currentTime);
+//
+//            if (startDate != null && endDate != null && currentDateTime != null) {
+//                long timeUntilStart = startDate.getTime() - currentDateTime.getTime();
+//                long timeUntilEnd = endDate.getTime() - currentDateTime.getTime();
+//
+//                if (timeUntilStart > 0) {
+//                    handleUpcomingQuiz(holder, timeUntilStart, timeUntilEnd, position);
+//                } else if (timeUntilEnd > 0) {
+//                    handleOngoingQuiz(holder, timeUntilEnd, position);
+//                } else {
+//                    handleExpiredQuiz(holder);
+//                }
+//            } else {
+//                Log.e("QuizAdapter", "Error parsing date or time for position: " + position);
+//
+//            }
+//        } catch (ParseException e) {
+//            Log.e("QuizAdapter", "Error parsing date/time strings", e);
+//            handleInvalidDates(holder);
+//        }
+//
+//
+//        holder.startBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                ConnectivityManager connectivityManager=(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//                NetworkInfo networkInfo=connectivityManager.getActiveNetworkInfo();
+//                if (networkInfo ==null) {
+//                    toastMsg("Check internet connection!");
+//                }
+//                else{
+//                    Date dateObj3 = null, dateObj4 = null;
+//                    try {
+//                        dateObj3 = sdf.parse(ques.get(holder.getAdapterPosition()).getEx_end_date() + " " + ques.get(holder.getAdapterPosition()).getEx_end_time());
+//                        dateObj4 = sdf.parse(currentDate + " " + currentTime);
+//                        Log.d("dateObj3dateObj3", dateObj3 + "   " + dateObj4);
+//                    } catch (ParseException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    DecimalFormat crunchifyFormatter2 = new DecimalFormat("###,###");
+//
+//                    // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
+//                    long diff2 = dateObj3.getTime() - dateObj4.getTime();
+//
+//
+//                    int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+//
+//                    int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+//
+//                    int diffmin2 = (int) (diff2 / (60 * 1000));
+//
+//                    int diffsec2 = (int) (diff2 / (1000));
+//                    Log.d("diff22", diffhours2 + " :: " + diffsec2 + " :: " + diffmin2);
+//
+//                    if (diffhours2 > 0 || diffmin2 > 0 || diffsec2 > 0) {
+//
+//
+//                        Log.d("selexam", String.valueOf(ques.get(holder.getAdapterPosition()).getExamId() + " position: " + holder.getAdapterPosition()));
+////                        Intent i = new Intent(context, MainActivity.class);
+////                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+////                        i.putExtra("exam_id", ques.get(holder.getAdapterPosition()).getExamId());
+////                        i.putExtra("exam_title", ques.get(holder.getAdapterPosition()).getExamTitle());
+////                        i.putExtra("st_date", ques.get(holder.getAdapterPosition()).getEx_start_date());
+////                        i.putExtra("st_time", ques.get(holder.getAdapterPosition()).getEx_start_time());
+////                        i.putExtra("end_date", ques.get(holder.getAdapterPosition()).getEx_end_date());
+////                        i.putExtra("end_time", ques.get(holder.getAdapterPosition()).getEx_end_time());
+////                        i.putExtra("exam_hr", ques.get(holder.getAdapterPosition()).getDurationH());
+////                        i.putExtra("exam_min", ques.get(holder.getAdapterPosition()).getDurationM());
+////                        i.putExtra("showtime", ques.get(holder.getAdapterPosition()).getTimeLimitB());
+////                        i.putExtra("seeresult", ques.get(holder.getAdapterPosition()).getSeeResult());
+////                        i.putExtra("att_no", ques.get(holder.getAdapterPosition()).getAtt());
+////                        Log.d("Attempt is" , String.valueOf(ques.get(holder.getAdapterPosition()).getAtt()));
+////                        Log.d("Attempt limit  is" , String.valueOf(ques.get(holder.getAdapterPosition()).getAttemptLimit()));
+////                        context.startActivity(i);
+////                    } else {
+////                        toastMsg("Quiz time expired");
+////                        holder.startBtn.setVisibility(View.GONE);
+////                        holder.expire.setVisibility(View.VISIBLE);
+////
+////                        int attemptsLeft = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit());
+////                        int attempt = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt());
+////
+////                        if (attemptsLeft > 1) {
+//////                            holder.expire.setText("Submited.");
+//////                            holder.startBtn.setVisibility(View.VISIBLE);
+//////                            holder.expire.setTextColor(Color.parseColor("#FF008000"));
+////                            holder.expire.setVisibility(View.VISIBLE);
+////                            holder.expire.setText("Attempts left: " + attemptsLeft);
+////                            holder.startBtn.setVisibility(View.VISIBLE);
+////                            attempt++;
+////                        } else {
+////                                    holder.startBtn.setVisibility(View.GONE);
+////                                    holder.expire.setVisibility(View.VISIBLE);
+////                                    holder.expire.setText("No attempts left");
+////                                }
+////                    }
+//
+//
+//                        int currentAttempts = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt());
+//                        int attemptsLeft = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit());
+//
+//                        // Check if there are attempts left
+//                        if (attemptsLeft > 0) {
+//                            // Increase the attempt count
+//                            currentAttempts++;
+//                            ques.get(holder.getAdapterPosition()).setAtt(String.valueOf(currentAttempts));
+//
+//                            Log.d("currentAttempts", "currentAttempts: "+currentAttempts);
+//                            // Decrease the attempts left
+//                            attemptsLeft--;
+//                            ques.get(holder.getAdapterPosition()).setAttemptLimit(String.valueOf(attemptsLeft));
+//                            Log.d("attemptsLeft", "attemptsLeft: "+attemptsLeft);
+//                            Log.d("selexam", String.valueOf(ques.get(holder.getAdapterPosition()).getExamId() + " position: " + holder.getAdapterPosition()));
+//                            Intent i = new Intent(context, MainActivity.class);
+//                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//                            i.putExtra("exam_id", ques.get(holder.getAdapterPosition()).getExamId());
+//                            i.putExtra("exam_title", ques.get(holder.getAdapterPosition()).getExamTitle());
+//                            i.putExtra("st_date", ques.get(holder.getAdapterPosition()).getEx_start_date());
+//                            i.putExtra("st_time", ques.get(holder.getAdapterPosition()).getEx_start_time());
+//                            i.putExtra("end_date", ques.get(holder.getAdapterPosition()).getEx_end_date());
+//                            i.putExtra("end_time", ques.get(holder.getAdapterPosition()).getEx_end_time());
+//                            i.putExtra("exam_hr", ques.get(holder.getAdapterPosition()).getDurationH());
+//                            i.putExtra("exam_min", ques.get(holder.getAdapterPosition()).getDurationM());
+//                            i.putExtra("showtime", ques.get(holder.getAdapterPosition()).getTimeLimitB());
+//                            i.putExtra("seeresult", ques.get(holder.getAdapterPosition()).getSeeResult());
+//                            i.putExtra("att_no", ques.get(holder.getAdapterPosition()).getAtt());
+//
+//                            Log.d("Attempt is", String.valueOf(currentAttempts));
+//                            Log.d("Attempt limit is", String.valueOf(attemptsLeft));
+//                            context.startActivity(i);
+//
+////                            holder.expire.setText("Submited");
+//                        } else {
+//                            holder.startBtn.setVisibility(View.GONE);
+//                            holder.expire.setVisibility(View.VISIBLE);
+//                            holder.expire.setText("No attempts left");
+//                        }
+//                    } else {
+//                        toastMsg("Quiz time expired");
+//                        holder.startBtn.setVisibility(View.GONE);
+//                        holder.expire.setVisibility(View.VISIBLE);
+//                    }
+//
+//                }
+//            }
+//
+//        });
+//
+//
+//
+//    }
+//
+//
+//    private void handleUpcomingQuiz(@NonNull QuizAdapter.ViewHolder holder, long timeUntilStart, long timeUntilEnd, int position) {
+//        holder.startBtn.setVisibility(View.GONE);
+//        holder.timer_LL.setVisibility(View.VISIBLE);
+//        holder.expire.setVisibility(View.GONE);
+//
+//        countDownTimer = new CountDownTimer(timeUntilStart, 1000) {
+//            @SuppressLint("DefaultLocale")
+//            @Override
+//            public void onTick(long millisUntilFinished) {
+//                updateCountdown(holder.timer, millisUntilFinished);
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                holder.timer.setText("00:00:00");
+//                holder.startBtn.setVisibility(View.VISIBLE);
+//                holder.timer_LL.setVisibility(View.GONE);
+//
+////                holder.tmTxt.setVisibility(View.GONE);
+//
+//                holder.expire.setVisibility(View.GONE);
+//            }
+//        }.start();
+//    }
+//
+//    private void handleOngoingQuiz(@NonNull QuizAdapter.ViewHolder holder, long timeUntilEnd, int position) {
+//        // Show the start button if the exam is ongoing
+//        holder.tmTxt.setVisibility(View.GONE); // Hide the timer text
+//        holder.startBtn.setVisibility(View.VISIBLE);
+//        holder.timer_LL.setVisibility(View.GONE);
+//        holder.expire.setVisibility(View.GONE);
+//
+//        // Set up the countdown timer until the end of the exam
+//        countDownTimer = new CountDownTimer(timeUntilEnd, 1000) {
+//            @SuppressLint("DefaultLocale")
+//            @Override
+//            public void onTick(long millisUntilFinished) {
+//                updateCountdown(holder.timer, millisUntilFinished);
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                holder.timer.setText("00:00:00");
+//                holder.startBtn.setVisibility(View.GONE);  // Hide the button once the exam has expired
+//                holder.timer_LL.setVisibility(View.GONE);
+//                holder.expire.setVisibility(View.VISIBLE);
+//                holder.expire.setText("Expired");
+//            }
+//        }.start();
+//    }
+//
+//
+//
+//    private void handleExpiredQuiz(@NonNull QuizAdapter.ViewHolder holder) {
+//        holder.startBtn.setVisibility(View.GONE);
+//        holder.timer_LL.setVisibility(View.GONE);
+//        holder.expire.setVisibility(View.VISIBLE);
+//        holder.expire.setText("Expired");
+//    }
+//
+//    private void handleInvalidDates(@NonNull QuizAdapter.ViewHolder holder) {
+//        holder.startBtn.setVisibility(View.GONE);
+//        holder.timer_LL.setVisibility(View.GONE);
+//        holder.expire.setVisibility(View.GONE);
+//    }
+//
+//    private void updateCountdown(TextView timerView, long millisUntilFinished) {
+//        int hours = (int) (millisUntilFinished / (1000 * 60 * 60));
+//        millisUntilFinished %= (1000 * 60 * 60);
+//        int minutes = (int) (millisUntilFinished / (1000 * 60));
+//        millisUntilFinished %= (1000 * 60);
+//        int seconds = (int) (millisUntilFinished / 1000);
+//        timerView.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+//    }
+//
+//
+//
+//    private void handleStartButtonClick(@NonNull QuizAdapter.ViewHolder holder, int position, String currentDate, String currentTime) {
+//        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+//        if (networkInfo == null) {
+//            toastMsg("Check internet connection!");
+//            return;
+//        }
+//
+//        // Similar date parsing logic as in onBindViewHolder() method
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+//            Date endDate = sdf.parse(QueResponse.getEx_end_date() + " " + QueResponse.getEx_end_time());
+//            Date currentDateTime = sdf.parse(currentDate + " " + currentTime);
+//
+//            if (endDate != null && currentDateTime != null) {
+//                long timeDifference = endDate.getTime() - currentDateTime.getTime();
+//                if (timeDifference <= 0) {
+//                    toastMsg("Quiz already expired!");
+//                } else {
+//                    Intent intent = new Intent(context, MainActivity.class);
+//                    Log.d( "start click: ","ijdsioojfiosdj");
+//                    intent.putExtra("exam_id", ques.get(position).getExamId());
+//                    context.startActivity(intent);
+//                }
+//            }
+//        } catch (ParseException e) {
+//            Log.e("QuizAdapter", "Error parsing end date or current time", e);
+//            toastMsg("Error starting quiz!");
+//        }
+//    }
+//
+//
+//
+//
+//    public  void  toastMsg(String msg){
+//
+//        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE ); ;
+//        View toast = inflater.inflate(R.layout.toast, null);
+//
+//        TextView text = (TextView) toast.findViewById(R.id.toast_txt);
+//        text.setText(msg);
+//        Toast view  = new Toast(context);
+//        // Set layout to toast
+//        view.setView(toast);
+//        view.setGravity(Gravity.BOTTOM| Gravity.FILL_HORIZONTAL, 0, 0);
+//        view.setDuration(Toast.LENGTH_SHORT);
+//        view.show();
+//
+//    }
+//    public String convert12(String str)
+//    {
+//        @SuppressLint("SimpleDateFormat") SimpleDateFormat _24HourSDF = new SimpleDateFormat("HH:mm:ss");
+//        @SuppressLint("SimpleDateFormat") SimpleDateFormat _12HourSDF = new SimpleDateFormat("hh:mm a");
+//        Date _24HourDt = null;
+//        try {
+//            _24HourDt = _24HourSDF.parse(str);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+////        System.out.println(_24HourDt);
+//        assert _24HourDt != null;
+////        System.out.println(_12HourSDF.format(_24HourDt));
+//
+//        return _12HourSDF.format(_24HourDt);
+//
+//
+//    }
+//
+//
+//    private void getList(String examid, String att, String modify) {
+//        if(getrlistactive) {
+//            if(modify.equals("1")){
+//
+//            }
+//            Log.d("Ques_res", "Ques_resQues_res" + examid);
+//            Api apiService = RetrofitClient.getApiService();
+//            Call<QlistRes> userResponse = apiService.QList(examid);
+//            userResponse.enqueue(new Callback<QlistRes>() {
+//                public QlistRes QueResponse;
+//
+//                @Override
+//                public void onResponse(Call<QlistRes> call, Response<QlistRes> response) {
+//                    QueResponse = response.body();
+//                    GetDetail.current_que = QueResponse.getData();
+//                    Log.d("Ques_res", new Gson().toJson(QueResponse));
+//                    GetDetail.att_data = new JSONArray();
+//
+//                    JSONArray jsonArray = new JSONArray();
+//                    for (QlistRes.Ques quearr : QueResponse.getData()) {
+//                        Log.d("saveToInternalStorage11", "saveToInternalStorage");
+//
+//                        if (!quearr.getImage().isEmpty()){
+////                            if (checkPermission()) {
+//                            URL url = null;
+//                            Bitmap bitmap = null;
+//                            String urlString = quearr.getImage();
+//                            urlString=  urlString.substring(urlString.lastIndexOf('/') + 1).split("\\?")[0].split("#")[0];
+//
+//                            try {
+//                                url = new URL("http://bbsc.createonlineacademy.com/public/uploads/questions/1622104732.jpg");
+//                                bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                            mSavedInfo = saveToInternalStorage(bitmap, urlString);
+//                            Log.d("quearr.getImage()", quearr.getImage());
+//                        }
+//
+//
+////                        add in sqllite
+//                        dbManager.open();
+//                        dbManager.insertQuesList("Questions", QueResponse.getData());
+//                        dbManager.close();
+//                    }
+//
+//                    Log.d("att_data***", new Gson().toJson(GetDetail.att_data));
+//
+//                    SharedPrefManager.getInstance(context).addQuesData(jsonArray.toString(), jsonArray.toString(), QueResponse.getData());
+//                }
+//
+//                @Override
+//                public void onFailure(Call<QlistRes> call, Throwable t) {
+//                    getList(examid, att, "modify");
+//                    Log.d("Ques_res", "Ques_resFailure");
+//                }
+//            });
+//
+//            getrlistactive = false;
+//        }
+//    }
+//    public boolean checkPermission() {
+//        if (ActivityCompat.checkSelfPermission((Activity)context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions((Activity)context, new String[]{
+//                    android.Manifest.permission.ACCESS_FINE_LOCATION
+//            }, 10);
+//        }
+//        int READ_EXTERNAL_PERMISSION = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
+//        if((READ_EXTERNAL_PERMISSION != PackageManager.PERMISSION_GRANTED)) {
+//            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_WRITE);
+//            return false;
+//        }
+//        return true;
+//    }
+//
+//    private String saveToInternalStorage(Bitmap bitmapImage,String urlString){
+//
+//        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+//
+//        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+//        File mypath = new File(directory, urlString);
+//        if(!mypath.exists()) {
+//            FileOutputStream fos = null;
+//
+//            try {
+//
+//                fos = new FileOutputStream(mypath);
+//
+//                bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+//
+//            } catch (Exception e) {
+//
+//                e.printStackTrace();
+//
+//            } finally {
+//
+//                try {
+//                    fos.close();
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//        }
+//        return directory.getAbsolutePath();
+//    }
+//
+//    @Override
+//    public int getItemCount() {
+//        return ques.size();
+//    }
+//
+//    @Override
+//    public long getItemId(int position) {
+//        return position;
+//    }
+//
+//    @Override
+//    public int getItemViewType(int position) {
+//        return position;
+//    }
+//
+//    public class ViewHolder extends RecyclerView.ViewHolder{
+//        TextView title,desc,inst, marks, ques, passing, tmTxt, timer,expire, exdate, dur, on_time, compQue;
+//        Button startBtn;
+//        LinearLayout instLL, timer_LL, CompQueLL, dateLL, ex_timeLL, durLL;
+//
+//        public ViewHolder(View view) {
+//            super(view);
+//            title = view.findViewById(R.id.title);
+//            desc = view.findViewById(R.id.desc);
+//            inst = view.findViewById(R.id.instruction);
+//            marks = view.findViewById(R.id.marks);
+//            ques = view.findViewById(R.id.noQue);
+//            passing = view.findViewById(R.id.passing);
+//            startBtn = view.findViewById(R.id.startBtn);
+//            instLL = view.findViewById(R.id.inst);
+//            tmTxt = view.findViewById(R.id.tmTxt);
+//            timer = view.findViewById(R.id.timer);
+//            expire = view.findViewById(R.id.expire);
+//            timer_LL = view.findViewById(R.id.timer_LL);
+//            exdate = view.findViewById(R.id.exdate);
+//            dur = view.findViewById(R.id.duration);
+//            on_time = view.findViewById(R.id.start_tm);
+//            CompQueLL = view.findViewById(R.id.CompQueLL);
+//            compQue = view.findViewById(R.id.compQue);
+//            dateLL = view.findViewById(R.id.dateLL);
+//            ex_timeLL = view.findViewById(R.id.ex_timeLL);
+//            durLL = view.findViewById(R.id.durLL);
+//        }
+//    }
+//}
+
+
+
+
+
+
+
+
+
+
+
+//making changes for retake
+
+//package com.bbsc.Adapter;
+//
+//import android.Manifest;
+//import android.annotation.SuppressLint;
+//import android.app.Activity;
+//import android.content.Context;
+//import android.content.ContextWrapper;
+//import android.content.Intent;
+//import android.content.pm.PackageManager;
+//import android.graphics.Bitmap;
+//import android.graphics.BitmapFactory;
+//import android.graphics.Color;
+//import android.net.ConnectivityManager;
+//import android.net.NetworkInfo;
+//import android.os.CountDownTimer;
+//import android.text.Html;
+//import android.util.Log;
+//import android.view.Gravity;
+//import android.view.LayoutInflater;
+//import android.view.View;
+//import android.view.ViewGroup;
+//import android.widget.Button;
+//import android.widget.LinearLayout;
+//import android.widget.RadioGroup;
+//import android.widget.TextView;
+//import android.widget.Toast;
+//
+//import androidx.annotation.NonNull;
+//import androidx.core.app.ActivityCompat;
+//import androidx.core.content.ContextCompat;
+//import androidx.recyclerview.widget.RecyclerView;
+//
+//import com.bbsc.Activity.MainActivity;
+//import com.bbsc.Activity.QuizListActivity;
+//import com.bbsc.Api.Api;
+//import com.bbsc.Api.RetrofitClient;
+//import com.bbsc.DB.DBManager;
+//import com.bbsc.Model.GetDetail;
+//import com.bbsc.Model.QlistRes;
+//import com.bbsc.Model.Quiz;
+//import com.bbsc.Model.User;
+//import com.bbsc.R;
+//import com.bbsc.SharedPrefManagerFile.SharedPrefManager;
+//import com.google.gson.Gson;
+//
+//import org.json.JSONArray;
+//
+//import java.io.File;
+//import java.io.FileOutputStream;
+//import java.io.IOException;
+//import java.net.URL;
+//import java.text.DateFormat;
+//import java.text.DecimalFormat;
+//import java.text.ParseException;
+//import java.text.SimpleDateFormat;
+//import java.time.ZonedDateTime;
+//import java.util.Calendar;
+//import java.util.Date;
+//import java.util.List;
+//import java.util.Locale;
+//import java.util.TimeZone;
+//import java.util.concurrent.TimeUnit;
+//
+//import retrofit2.Call;
+//import retrofit2.Callback;
+//import retrofit2.Response;
+//
+//import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_WRITE;
+//import static com.facebook.FacebookSdk.getApplicationContext;
+//
+//
+////before start visible
+//public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
+//
+//    Context context;
+//    List<Quiz.Qinfo> ques;
+//    RadioGroup.LayoutParams rprms;
+//    Calendar calendar;
+//    DateFormat formatter ;
+//    CountDownTimer countDownTimer = null;
+//    User user;
+//    List<Quiz.Qinfo> listItems;
+//    private DBManager dbManager;
+//    @SuppressLint("DefaultLocale") String hms;
+//    String format = "yyyy-MM-dd HH:mm:ss";
+//    String mSavedInfo;
+//
+//    boolean getrlistactive = true;
+//    SimpleDateFormat sdf;
+//    private Quiz.Qinfo QueResponse;
+//    @SuppressLint("SimpleDateFormat")
+//    public QuizAdapter(Context mContext, List<Quiz.Qinfo> ques) {
+//        this.context = mContext;
+//        this.ques = ques;
+//        Log.d("ques_size", String.valueOf(ques.size()));
+//        sdf = new SimpleDateFormat(format);
+//        sdf.setTimeZone(TimeZone.getTimeZone("GMT+5:30"));
+//        user = SharedPrefManager.getInstance(mContext).getUser();
+//        dbManager = new DBManager(context);
+//        dbManager.open();
+//
+//        listItems = dbManager.getAllQuizzes();
+//        dbManager.close();
+//
+//    }
+//
+//    @NonNull
+//    @Override
+//    public QuizAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+//        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_quiz, viewGroup, false);
+//        return new ViewHolder(view);
+//    }
+//
+//
+//
+//    @SuppressLint({"SetTextI18n", "SimpleDateFormat"})
+//    @Override
+//    public void onBindViewHolder(@NonNull QuizAdapter.ViewHolder holder, int position) {
+//        // Get the current item in the list
+//        QueResponse = ques.get(position);
+//
+//        // Log the position and check if QueResponse is null
+//        if (QueResponse == null) {
+//            Log.e("QuizAdapter", "Item at position " + position + " is null");
+//            return; // Skip binding this view
+//        }
+//
+//        Log.d("QuizAdapter", "Binding view for position: " + position);
+//
+//        // Set exam title
+//        holder.title.setText(QueResponse.getExamTitle());
+//
+//        // Handle description
+//        if (QueResponse.getDescription() != null && !QueResponse.getDescription().isEmpty()) {
+//            holder.desc.setText(Html.fromHtml(Html.fromHtml(QueResponse.getDescription()).toString()));
+//            holder.desc.setVisibility(View.VISIBLE);
+//        } else {
+//            holder.desc.setVisibility(View.GONE);
+//        }
+//
+//        // Handle instructions
+//        if (QueResponse.getInstructions() != null && !QueResponse.getInstructions().isEmpty()) {
+//            holder.inst.setText(Html.fromHtml(Html.fromHtml(QueResponse.getInstructions()).toString()));
+//            holder.instLL.setVisibility(View.VISIBLE);
+//        } else {
+//            holder.instLL.setVisibility(View.GONE);
+//        }
+//
+//        String compulsoryQue = QueResponse.getCompulsory_que();
+//
+//// Check if the string is not null and not empty
+//        if (compulsoryQue != null && !compulsoryQue.isEmpty()) {
+//            try {
+//                int compulsoryQueValue = Integer.parseInt(compulsoryQue);
+//                if (compulsoryQueValue > 0) {
+//                    holder.CompQueLL.setVisibility(View.VISIBLE);
+//                    holder.compQue.setText(compulsoryQue);
+//                } else {
+//                    holder.CompQueLL.setVisibility(View.GONE);
+//                }
+//            } catch (NumberFormatException e) {
+//                // Handle the case where parsing fails
+//                holder.CompQueLL.setVisibility(View.GONE);
+//            }
+//        } else {
+//            holder.CompQueLL.setVisibility(View.GONE);
+//        }
+//
+//        // Format and set marks and dates
+//        holder.marks.setText(QueResponse.getTotalMarks());
+//        holder.exdate.setText(QueResponse.getEx_start_date());
+//
+//        String dur_map = "min";
+//        int durationHours = 0, durationMinutes = 0;
+//        try {
+//            durationHours = Integer.parseInt(QueResponse.getDurationH());
+//            durationMinutes = Integer.parseInt(QueResponse.getDurationM());
+//            if (durationHours > 0) dur_map = "hr";
+//        } catch (NumberFormatException e) {
+//            Log.e("QuizAdapter", "Error parsing duration values", e);
+//        }
+//
+//        DecimalFormat durFormat = new DecimalFormat("00");
+//        holder.dur.setText(durFormat.format(durationHours) + ":" + durFormat.format(durationMinutes) + " " + dur_map);
+//
+//        holder.on_time.setText(convert12(QueResponse.getEx_start_time()) + " - " + convert12(QueResponse.getEx_end_time()));
+//
+//        holder.ques.setText(QueResponse.getQcount());
+//        holder.passing.setText(QueResponse.getPassingScore() + "%");
+//
+//        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+//        String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+//
+//        // Log the current date and time
+//        Log.d("QuizAdapter", "Current Date: " + currentDate);
+//        Log.d("QuizAdapter", "Current Time: " + currentTime);
+//
+//        // Check for null or empty exam start date
+//        if (QueResponse.getEx_start_date() == null || QueResponse.getEx_start_time() == null) {
+//            Log.e("QuizAdapter", "Exam start date or time is missing for position: " + position);
+//            return;
+//        }
+//
+//        // Date format used for parsing
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+//
+//        try {
+//            String startDateString = QueResponse.getEx_start_date() + " " + QueResponse.getEx_start_time();
+//            String endDateString = QueResponse.getEx_end_date() + " " + QueResponse.getEx_end_time();
+//
+//            Date startDate = sdf.parse(startDateString);
+//            Date endDate = sdf.parse(endDateString);
+//            Date currentDateTime = sdf.parse(currentDate + " " + currentTime);
+//
+//            if (startDate != null && endDate != null && currentDateTime != null) {
+//                long timeUntilStart = startDate.getTime() - currentDateTime.getTime();
+//                long timeUntilEnd = endDate.getTime() - currentDateTime.getTime();
+//
+//                if (timeUntilStart > 0) {
+//                    handleUpcomingQuiz(holder, timeUntilStart, timeUntilEnd, position);
+//                } else if (timeUntilEnd > 0) {
+//                    handleOngoingQuiz(holder, timeUntilEnd, position);
+//                } else {
+//                    handleExpiredQuiz(holder);
+//                }
+//            } else {
+//                Log.e("QuizAdapter", "Error parsing date or time for position: " + position);
+//
+//            }
+//        } catch (ParseException e) {
+//            Log.e("QuizAdapter", "Error parsing date/time strings", e);
+//            handleInvalidDates(holder);
+//        }
+//
+//
+////update on basis of retake for start button
+//
+//        int attemptsLeft = Integer.parseInt(QueResponse.getAttemptLimit());
+//        // Log the number of attempts
+//        Log.d("QuizAdapter", "Remaining attempts for exam " + QueResponse.getExamTitle() + ": " + attemptsLeft);
+//
+//        if (attemptsLeft > 0) {
+//            // The user still has attempts left, allow them to start the quiz
+//            holder.startBtn.setVisibility(View.VISIBLE);
+//            holder.expire.setVisibility(View.GONE);
+//
+////            holder.startBtn.setOnClickListener(new View.OnClickListener() {
+////                @Override
+////                public void onClick(View view) {
+////                    ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+////                    NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+////                    if (networkInfo == null) {
+////                        toastMsg("Check internet connection!");
+////                    } else {
+////                        Date dateObj3 = null, dateObj4 = null;
+////                        try {
+////                            dateObj3 = sdf.parse(ques.get(holder.getAdapterPosition()).getEx_end_date() + " " + ques.get(holder.getAdapterPosition()).getEx_end_time());
+////                            dateObj4 = sdf.parse(currentDate + " " + currentTime);
+////                            Log.d("dateObj3dateObj3", dateObj3 + "   " + dateObj4);
+////                        } catch (ParseException e) {
+////                            e.printStackTrace();
+////                        }
+////
+////                        DecimalFormat crunchifyFormatter2 = new DecimalFormat("###,###");
+////
+////                        // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
+////                        long diff2 = dateObj3.getTime() - dateObj4.getTime();
+////
+////                        int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+////
+////                        int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+////
+////                        int diffmin2 = (int) (diff2 / (60 * 1000));
+////
+////                        int diffsec2 = (int) (diff2 / (1000));
+////                        Log.d("diff22", diffhours2 + " :: " + diffsec2 + " :: " + diffmin2);
+////                        if (diffhours2 > 0 || diffmin2 > 0 || diffsec2 > 0) {
+////
+////
+////                            Log.d("selexam", String.valueOf(ques.get(holder.getAdapterPosition()).getExamId() + " position: " + holder.getAdapterPosition()));
+////                            Intent i = new Intent(context, MainActivity.class);
+////                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+////                            i.putExtra("exam_id", ques.get(holder.getAdapterPosition()).getExamId());
+////                            i.putExtra("exam_title", ques.get(holder.getAdapterPosition()).getExamTitle());
+////                            i.putExtra("st_date", ques.get(holder.getAdapterPosition()).getEx_start_date());
+////                            i.putExtra("st_time", ques.get(holder.getAdapterPosition()).getEx_start_time());
+////                            i.putExtra("end_date", ques.get(holder.getAdapterPosition()).getEx_end_date());
+////                            i.putExtra("end_time", ques.get(holder.getAdapterPosition()).getEx_end_time());
+////                            i.putExtra("exam_hr", ques.get(holder.getAdapterPosition()).getDurationH());
+////                            i.putExtra("exam_min", ques.get(holder.getAdapterPosition()).getDurationM());
+////                            i.putExtra("showtime", ques.get(holder.getAdapterPosition()).getTimeLimitB());
+////                            i.putExtra("seeresult", ques.get(holder.getAdapterPosition()).getSeeResult());
+////                            i.putExtra("att_no", ques.get(holder.getAdapterPosition()).getAtt());
+////                            Log.d("att_no is", String.valueOf(ques.get(holder.getAdapterPosition()).getAtt()));
+////                            context.startActivity(i);
+////                        } else {
+////                            toastMsg("Quiz time expired");
+////                            holder.startBtn.setVisibility(View.GONE);
+////                            holder.expire.setVisibility(View.VISIBLE);
+////                            if (Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) > 1) {
+////                                holder.expire.setText("Submited.");
+////                                holder.expire.setTextColor(Color.parseColor("#FF008000"));
+////                            } else
+////                                holder.expire.setText("Expired.");
+////                        }
+////                    }
+////                }
+////            });
+//
+//
+//            holder.startBtn.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//                    NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+//
+//                    // Check if there is an active network connection
+//                    if (networkInfo == null) {
+//                        toastMsg("Check internet connection!");
+//                    } else {
+//                        Date dateObj3 = null, dateObj4 = null;
+//                        try {
+//                            // Parse exam end date and current date for comparison
+//                            dateObj3 = sdf.parse(ques.get(holder.getAdapterPosition()).getEx_end_date() + " " + ques.get(holder.getAdapterPosition()).getEx_end_time());
+//                            dateObj4 = sdf.parse(currentDate + " " + currentTime);
+//
+//                            Log.d("dateObj3dateObj3", dateObj3 + "   " + dateObj4);
+//                        } catch (ParseException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        // Calculate time differences
+//                        long diff2 = dateObj3.getTime() - dateObj4.getTime();
+//                        int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+//                        int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+//                        int diffmin2 = (int) (diff2 / (60 * 1000));
+//                        int diffsec2 = (int) (diff2 / (1000));
+//
+//                        Log.d("diff22", diffhours2 + " :: " + diffsec2 + " :: " + diffmin2);
+//
+//                        // Check if there is still time left for the quiz
+//                        if (diffhours2 > 0 || diffmin2 > 0 || diffsec2 > 0) {
+//                            // Get the number of attempts left for the quiz
+//                            int attemptsLeft = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit());
+//                            Log.d("attemptLimit", "attemptLimit is: "+ attemptsLeft);
+//
+//                            if (attemptsLeft > 0) {
+//                                // User has attempts left, start the quiz and decrease attempts count
+//                                Log.d("selexam", String.valueOf(ques.get(holder.getAdapterPosition()).getExamId() + " position: " + holder.getAdapterPosition()));
+//                                Intent i = new Intent(context, MainActivity.class);
+//                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//
+//                                // Pass necessary data to the quiz activity
+//                                i.putExtra("exam_id", ques.get(holder.getAdapterPosition()).getExamId());
+//                                i.putExtra("exam_title", ques.get(holder.getAdapterPosition()).getExamTitle());
+//                                i.putExtra("st_date", ques.get(holder.getAdapterPosition()).getEx_start_date());
+//                                i.putExtra("st_time", ques.get(holder.getAdapterPosition()).getEx_start_time());
+//                                i.putExtra("end_date", ques.get(holder.getAdapterPosition()).getEx_end_date());
+//                                i.putExtra("end_time", ques.get(holder.getAdapterPosition()).getEx_end_time());
+//                                i.putExtra("exam_hr", ques.get(holder.getAdapterPosition()).getDurationH());
+//                                i.putExtra("exam_min", ques.get(holder.getAdapterPosition()).getDurationM());
+//                                i.putExtra("showtime", ques.get(holder.getAdapterPosition()).getTimeLimitB());
+//                                i.putExtra("seeresult", ques.get(holder.getAdapterPosition()).getSeeResult());
+//                                i.putExtra("att_no", attemptsLeft);  // Pass the remaining attempts
+//
+//                                context.startActivity(i);
+//
+//                                // Decrease attempts and update the quiz item
+//                                attemptsLeft--;
+//                                ques.get(holder.getAdapterPosition()).setAttemptLimit(String.valueOf(attemptsLeft));
+//
+//                                // Update the UI: Show the updated number of attempts or disable the start button if no attempts are left
+//                                if (attemptsLeft > 0) {
+//                                    holder.expire.setText("Attempts left: " + attemptsLeft);
+//                                    holder.startBtn.setVisibility(View.VISIBLE);
+//                                } else {
+//                                    holder.startBtn.setVisibility(View.GONE);
+//                                    holder.expire.setVisibility(View.VISIBLE);
+//                                    holder.expire.setText("No attempts left");
+//                                }
+//                            } else {
+//                                // No attempts left
+//                                toastMsg("No attempts left for this quiz.");
+//                                holder.startBtn.setVisibility(View.GONE);
+//                                holder.expire.setVisibility(View.VISIBLE);
+//                                holder.expire.setText("No attempts left");
+//                            }
+//
+//                        }
+
+// else {
+//                            // Quiz has expired
+//                            toastMsg("Quiz time expired");
+//                            holder.startBtn.setVisibility(View.GONE);
+//                            holder.expire.setVisibility(View.VISIBLE);
+//
+//                            // Check attempts to set appropriate message
+//                            if (Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) > 1) {
+//                                holder.expire.setText("Submited.");
+//                                holder.expire.setTextColor(Color.parseColor("#FF008000"));
+//                            } else {
+//                                holder.expire.setText("Expired.");
+//                                holder.expire.setTextColor(Color.RED);
+//                            }
+//                        }
+//                    }
+//                }
+//            });
+//
+//
+//            holder.expire.setText("");  // Clear any "Expired" text if it was previously set
+//
+//        } else {
+//            // No attempts left, hide the start button and show "No attempts left" message
+//            holder.startBtn.setVisibility(View.GONE);
+//            holder.expire.setVisibility(View.VISIBLE);
+//            holder.expire.setText("No attempts left");
+//            holder.expire.setTextColor(Color.parseColor("#FF0000")); // Set red text to indicate no attempts
+//        }
+//
+//    }
+//
+//
+//    private void handleUpcomingQuiz(@NonNull QuizAdapter.ViewHolder holder, long timeUntilStart, long timeUntilEnd, int position) {
+//        holder.startBtn.setVisibility(View.GONE);
+//        holder.timer_LL.setVisibility(View.VISIBLE);
+//        holder.expire.setVisibility(View.GONE);
+//
+//        countDownTimer = new CountDownTimer(timeUntilStart, 1000) {
+//            @SuppressLint("DefaultLocale")
+//            @Override
+//            public void onTick(long millisUntilFinished) {
+//                updateCountdown(holder.timer, millisUntilFinished);
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                holder.timer.setText("00:00:00");
+//                holder.startBtn.setVisibility(View.VISIBLE);
+//                holder.timer_LL.setVisibility(View.GONE);
+//
+////                holder.tmTxt.setVisibility(View.GONE);
+//
+//                holder.expire.setVisibility(View.GONE);
+//            }
+//        }.start();
+//    }
+//
+//    private void handleOngoingQuiz(@NonNull QuizAdapter.ViewHolder holder, long timeUntilEnd, int position) {
+//        // Show the start button if the exam is ongoing
+//        holder.tmTxt.setVisibility(View.GONE); // Hide the timer text
+//        holder.startBtn.setVisibility(View.VISIBLE);
+//        holder.timer_LL.setVisibility(View.GONE);
+//        holder.expire.setVisibility(View.GONE);
+//
+//        // Set up the countdown timer until the end of the exam
+//        countDownTimer = new CountDownTimer(timeUntilEnd, 1000) {
+//            @SuppressLint("DefaultLocale")
+//            @Override
+//            public void onTick(long millisUntilFinished) {
+//                updateCountdown(holder.timer, millisUntilFinished);
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                holder.timer.setText("00:00:00");
+//                holder.startBtn.setVisibility(View.GONE);  // Hide the button once the exam has expired
+//                holder.timer_LL.setVisibility(View.GONE);
+//                holder.expire.setVisibility(View.VISIBLE);
+//                holder.expire.setText("Expired");
+//            }
+//        }.start();
+//    }
+//
+//
+//
+//    private void handleExpiredQuiz(@NonNull QuizAdapter.ViewHolder holder) {
+//        holder.startBtn.setVisibility(View.GONE);
+//        holder.timer_LL.setVisibility(View.GONE);
+//        holder.expire.setVisibility(View.VISIBLE);
+//        holder.expire.setText("Expired");
+//    }
+//
+//    private void handleInvalidDates(@NonNull QuizAdapter.ViewHolder holder) {
+//        holder.startBtn.setVisibility(View.GONE);
+//        holder.timer_LL.setVisibility(View.GONE);
+//        holder.expire.setVisibility(View.GONE);
+//    }
+//
+//    private void updateCountdown(TextView timerView, long millisUntilFinished) {
+//        int hours = (int) (millisUntilFinished / (1000 * 60 * 60));
+//        millisUntilFinished %= (1000 * 60 * 60);
+//        int minutes = (int) (millisUntilFinished / (1000 * 60));
+//        millisUntilFinished %= (1000 * 60);
+//        int seconds = (int) (millisUntilFinished / 1000);
+//        timerView.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+//    }
+//
+//
+//
+//    private void handleStartButtonClick(@NonNull QuizAdapter.ViewHolder holder, int position, String currentDate, String currentTime) {
+//        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+//        if (networkInfo == null) {
+//            toastMsg("Check internet connection!");
+//            return;
+//        }
+//
+//        // Similar date parsing logic as in onBindViewHolder() method
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+//            Date endDate = sdf.parse(QueResponse.getEx_end_date() + " " + QueResponse.getEx_end_time());
+//            Date currentDateTime = sdf.parse(currentDate + " " + currentTime);
+//
+//            if (endDate != null && currentDateTime != null) {
+//                long timeDifference = endDate.getTime() - currentDateTime.getTime();
+//                if (timeDifference <= 0) {
+//                    toastMsg("Quiz already expired!");
+//                } else {
+//                    Intent intent = new Intent(context, MainActivity.class);
+//                    Log.d( "start click: ","ijdsioojfiosdj");
+//                    intent.putExtra("exam_id", ques.get(position).getExamId());
+//                    context.startActivity(intent);
+//                }
+//            }
+//        } catch (ParseException e) {
+//            Log.e("QuizAdapter", "Error parsing end date or current time", e);
+//            toastMsg("Error starting quiz!");
+//        }
+//    }
+//
+//
+//
+//
+//    public  void  toastMsg(String msg){
+//
+//        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE ); ;
+//        View toast = inflater.inflate(R.layout.toast, null);
+//
+//        TextView text = (TextView) toast.findViewById(R.id.toast_txt);
+//        text.setText(msg);
+//        Toast view  = new Toast(context);
+//        // Set layout to toast
+//        view.setView(toast);
+//        view.setGravity(Gravity.BOTTOM| Gravity.FILL_HORIZONTAL, 0, 0);
+//        view.setDuration(Toast.LENGTH_SHORT);
+//        view.show();
+//
+//    }
+//    public String convert12(String str)
+//    {
+//        @SuppressLint("SimpleDateFormat") SimpleDateFormat _24HourSDF = new SimpleDateFormat("HH:mm:ss");
+//        @SuppressLint("SimpleDateFormat") SimpleDateFormat _12HourSDF = new SimpleDateFormat("hh:mm a");
+//        Date _24HourDt = null;
+//        try {
+//            _24HourDt = _24HourSDF.parse(str);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+////        System.out.println(_24HourDt);
+//        assert _24HourDt != null;
+////        System.out.println(_12HourSDF.format(_24HourDt));
+//
+//        return _12HourSDF.format(_24HourDt);
+//
+//
+//    }
+//
+//
+//    private void getList(String examid, String att, String modify) {
+//        if(getrlistactive) {
+//            if(modify.equals("1")){
+//
+//            }
+//            Log.d("Ques_res", "Ques_resQues_res" + examid);
+//            Api apiService = RetrofitClient.getApiService();
+//            Call<QlistRes> userResponse = apiService.QList(examid);
+//            userResponse.enqueue(new Callback<QlistRes>() {
+//                public QlistRes QueResponse;
+//
+//                @Override
+//                public void onResponse(Call<QlistRes> call, Response<QlistRes> response) {
+//                    QueResponse = response.body();
+//                    GetDetail.current_que = QueResponse.getData();
+//                    Log.d("Ques_res", new Gson().toJson(QueResponse));
+//                    GetDetail.att_data = new JSONArray();
+//
+//                    JSONArray jsonArray = new JSONArray();
+//                    for (QlistRes.Ques quearr : QueResponse.getData()) {
+//                        Log.d("saveToInternalStorage11", "saveToInternalStorage");
+//
+//                        if (!quearr.getImage().isEmpty()){
+////                            if (checkPermission()) {
+//                            URL url = null;
+//                            Bitmap bitmap = null;
+//                            String urlString = quearr.getImage();
+//                            urlString=  urlString.substring(urlString.lastIndexOf('/') + 1).split("\\?")[0].split("#")[0];
+//
+//                            try {
+//                                url = new URL("http://bbsc.createonlineacademy.com/public/uploads/questions/1622104732.jpg");
+//                                bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                            mSavedInfo = saveToInternalStorage(bitmap, urlString);
+//                            Log.d("quearr.getImage()", quearr.getImage());
+//                        }
+//
+//
+////                        add in sqllite
+//                        dbManager.open();
+//                        dbManager.insertQuesList("Questions", QueResponse.getData());
+//                        dbManager.close();
+//                    }
+//
+//                    Log.d("att_data***", new Gson().toJson(GetDetail.att_data));
+//
+//                    SharedPrefManager.getInstance(context).addQuesData(jsonArray.toString(), jsonArray.toString(), QueResponse.getData());
+//                }
+//
+//                @Override
+//                public void onFailure(Call<QlistRes> call, Throwable t) {
+//                    getList(examid, att, "modify");
+//                    Log.d("Ques_res", "Ques_resFailure");
+//                }
+//            });
+//
+//            getrlistactive = false;
+//        }
+//    }
+//    public boolean checkPermission() {
+//        if (ActivityCompat.checkSelfPermission((Activity)context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions((Activity)context, new String[]{
+//                    android.Manifest.permission.ACCESS_FINE_LOCATION
+//            }, 10);
+//        }
+//        int READ_EXTERNAL_PERMISSION = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
+//        if((READ_EXTERNAL_PERMISSION != PackageManager.PERMISSION_GRANTED)) {
+//            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_WRITE);
+//            return false;
+//        }
+//        return true;
+//    }
+//
+//    private String saveToInternalStorage(Bitmap bitmapImage,String urlString){
+//
+//        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+//
+//        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+//        File mypath = new File(directory, urlString);
+//        if(!mypath.exists()) {
+//            FileOutputStream fos = null;
+//
+//            try {
+//
+//                fos = new FileOutputStream(mypath);
+//
+//                bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+//
+//            } catch (Exception e) {
+//
+//                e.printStackTrace();
+//
+//            } finally {
+//
+//                try {
+//                    fos.close();
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//        }
+//        return directory.getAbsolutePath();
+//    }
+//
+//    @Override
+//    public int getItemCount() {
+//        return ques.size();
+//    }
+//
+//    @Override
+//    public long getItemId(int position) {
+//        return position;
+//    }
+//
+//    @Override
+//    public int getItemViewType(int position) {
+//        return position;
+//    }
+//
+//    public class ViewHolder extends RecyclerView.ViewHolder{
+//        TextView title,desc,inst, marks, ques, passing, tmTxt, timer,expire, exdate, dur, on_time, compQue;
+//        Button startBtn;
+//        LinearLayout instLL, timer_LL, CompQueLL, dateLL, ex_timeLL, durLL;
+//
+//        public ViewHolder(View view) {
+//            super(view);
+//            title = view.findViewById(R.id.title);
+//            desc = view.findViewById(R.id.desc);
+//            inst = view.findViewById(R.id.instruction);
+//            marks = view.findViewById(R.id.marks);
+//            ques = view.findViewById(R.id.noQue);
+//            passing = view.findViewById(R.id.passing);
+//            startBtn = view.findViewById(R.id.startBtn);
+//            instLL = view.findViewById(R.id.inst);
+//            tmTxt = view.findViewById(R.id.tmTxt);
+//            timer = view.findViewById(R.id.timer);
+//            expire = view.findViewById(R.id.expire);
+//            timer_LL = view.findViewById(R.id.timer_LL);
+//            exdate = view.findViewById(R.id.exdate);
+//            dur = view.findViewById(R.id.duration);
+//            on_time = view.findViewById(R.id.start_tm);
+//            CompQueLL = view.findViewById(R.id.CompQueLL);
+//            compQue = view.findViewById(R.id.compQue);
+//            dateLL = view.findViewById(R.id.dateLL);
+//            ex_timeLL = view.findViewById(R.id.ex_timeLL);
+//            durLL = view.findViewById(R.id.durLL);
+//        }
+//    }
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//working code
+
+package com.bbsc.Adapter;
+
+        import android.Manifest;
+        import android.annotation.SuppressLint;
+        import android.app.Activity;
+        import android.content.Context;
+        import android.content.ContextWrapper;
+        import android.content.Intent;
+        import android.content.pm.PackageManager;
+        import android.graphics.Bitmap;
+        import android.graphics.BitmapFactory;
+        import android.graphics.Color;
+        import android.net.ConnectivityManager;
+        import android.net.NetworkInfo;
+        import android.os.CountDownTimer;
+        import android.text.Html;
+        import android.util.Log;
+        import android.view.Gravity;
+        import android.view.LayoutInflater;
+        import android.view.View;
+        import android.view.ViewGroup;
+        import android.widget.Button;
+        import android.widget.LinearLayout;
+        import android.widget.RadioGroup;
+        import android.widget.TextView;
+        import android.widget.Toast;
+
+        import androidx.annotation.NonNull;
+        import androidx.core.app.ActivityCompat;
+        import androidx.core.content.ContextCompat;
+        import androidx.recyclerview.widget.RecyclerView;
+
+        import com.bbsc.Activity.MainActivity;
+        import com.bbsc.Activity.QuizListActivity;
+        import com.bbsc.Api.Api;
+        import com.bbsc.Api.RetrofitClient;
+        import com.bbsc.DB.DBManager;
+        import com.bbsc.Model.GetDetail;
+        import com.bbsc.Model.QlistRes;
+        import com.bbsc.Model.Quiz;
+        import com.bbsc.Model.User;
+        import com.bbsc.R;
+        import com.bbsc.SharedPrefManagerFile.SharedPrefManager;
+        import com.google.gson.Gson;
+
+        import org.json.JSONArray;
+
+        import java.io.File;
+        import java.io.FileOutputStream;
+        import java.io.IOException;
+        import java.net.URL;
+        import java.text.DateFormat;
+        import java.text.DecimalFormat;
+        import java.text.ParseException;
+        import java.text.SimpleDateFormat;
+        import java.time.ZonedDateTime;
+        import java.util.Calendar;
+        import java.util.Date;
+        import java.util.List;
+        import java.util.Locale;
+        import java.util.TimeZone;
+        import java.util.concurrent.TimeUnit;
+
+        import retrofit2.Call;
+        import retrofit2.Callback;
+        import retrofit2.Response;
+
+        import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_WRITE;
+        import static com.facebook.FacebookSdk.getApplicationContext;
+
+
+//before start visible
+public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
+
+    Context context;
+    List<Quiz.Qinfo> ques;
+    RadioGroup.LayoutParams rprms;
+    Calendar calendar;
+    DateFormat formatter ;
+    CountDownTimer countDownTimer = null;
+    User user;
+    List<Quiz.Qinfo> listItems;
+    private DBManager dbManager;
+    @SuppressLint("DefaultLocale") String hms;
+    String format = "yyyy-MM-dd HH:mm:ss";
+    String mSavedInfo;
+
+    boolean getrlistactive = true;
+    SimpleDateFormat sdf;
+    private Quiz.Qinfo QueResponse;
+    @SuppressLint("SimpleDateFormat")
+    public QuizAdapter(Context mContext, List<Quiz.Qinfo> ques) {
+        this.context = mContext;
+        this.ques = ques;
+        Log.d("ques_size", String.valueOf(ques.size()));
+        sdf = new SimpleDateFormat(format);
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT+5:30"));
+        user = SharedPrefManager.getInstance(mContext).getUser();
+        dbManager = new DBManager(context);
+        dbManager.open();
+
+        listItems = dbManager.getAllQuizzes();
+        dbManager.close();
+
+    }
+
+    @NonNull
+    @Override
+    public QuizAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_quiz, viewGroup, false);
+        return new ViewHolder(view);
+    }
+
+
+
+
+//    @Override
+//    public void onBindViewHolder(@NonNull QuizAdapter.ViewHolder holder, int position) {
+//        QueResponse = ques.get(position);
+//        holder.title.setText(ques.get(position).getExamTitle());
+//
+//        if (ques.get(position).getDescription().isEmpty()) {
+//            holder.desc.setVisibility(View.GONE);
+//        } else {
+//            holder.desc.setText(Html.fromHtml(Html.fromHtml(ques.get(position).getDescription()).toString()));
+//        }
+//
+//        if (ques.get(position).getInstructions().isEmpty()) {
+//            holder.instLL.setVisibility(View.GONE);
+//        } else {
+//            holder.inst.setText(Html.fromHtml(Html.fromHtml(ques.get(position).getInstructions()).toString()));
+//        }
+//
+//        if (ques.get(position).getCompulsory_que() != null && Integer.parseInt(ques.get(position).getCompulsory_que()) > 0) {
+//            holder.CompQueLL.setVisibility(View.VISIBLE);
+//            holder.compQue.setText(ques.get(position).getCompulsory_que());
+//        }
+//
+//
+//
+//        holder.marks.setText(ques.get(position).getTotalMarks());
+//        holder.exdate.setText(ques.get(position).getEx_start_date());
+//
+//
+//
+////        DecimalFormat durFormat = new DecimalFormat("00");
+////        String dur_map = "min";
+////
+////        if (Integer.parseInt(ques.get(position).getDurationH()) > 0)
+////            dur_map = "hr";
+////
+////        holder.dur.setText(durFormat.format(Integer.parseInt(ques.get(position).getDurationH())) + ":" + durFormat.format(Integer.parseInt(ques.get(position).getDurationM())) + " " + dur_map);
+//
+//
+//
+//        DecimalFormat durFormat = new DecimalFormat("00");
+//        String dur_map = "min";
+//
+//// Trim the input to remove any extra spaces
+//        String durationH = ques.get(position).getDurationH().trim();
+//        String durationM = ques.get(position).getDurationM().trim();
+//
+//        try {
+//            // Check if hours are greater than 0, update the dur_map to "hr"
+//            if (Integer.parseInt(durationH) > 0) {
+//                dur_map = "hr";
+//            }
+//
+//            // Set the formatted duration text
+//            holder.dur.setText(durFormat.format(Integer.parseInt(durationH)) + ":" + durFormat.format(Integer.parseInt(durationM)) + " " + dur_map);
+//
+//        } catch (NumberFormatException e) {
+//            e.printStackTrace();
+//            // Optionally set a default value or show an error message
+//            holder.dur.setText("Invalid duration");
+//        }
+//
+//
+//
+//
+//        holder.on_time.setText(convert12(ques.get(position).getEx_start_time()) + " - " + convert12(ques.get(position).getEx_end_time()));
+//
+//        holder.ques.setText(ques.get(position).getQcount());
+//        holder.passing.setText(ques.get(position).getPassingScore() + "%");
+//
+//        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+//        String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+//
+//        holder.expire.setVisibility(View.VISIBLE);
+//
+//        if (Integer.parseInt(ques.get(position).getTimeLimitB()) > 0 && ques.get(position).getEx_start_date() != null) {
+//            if (ques.get(position).getEx_start_date().equals(currentDate)) {
+//
+//                if ((ques.get(position).getRetake().equals("1") && (Integer.parseInt(ques.get(position).getAtt()) <= Integer.parseInt(ques.get(position).getAttemptLimit())
+//                        || Integer.parseInt(ques.get(position).getAttemptLimit()) > 10)) ||
+//                        (ques.get(position).getRetake().equals("0") && Integer.parseInt(ques.get(position).getAtt()) <= 1)) {
+//
+//                    holder.startBtn.setVisibility(View.VISIBLE);
+//
+//                    List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(position).getExamId());
+//                    if (quelistItems.size() <= 0)
+//                        getList(ques.get(position).getExamId(), ques.get(position).getAtt(), "0");
+//                    else {
+//                        if (ques.get(position).getModified_date() != null) {
+//                            Date mode_date = null, ques_date = null;
+//                            try {
+//                                mode_date = sdf.parse(ques.get(position).getModified_date());
+//                                ques_date = sdf.parse(quelistItems.get(0).getModified_date());
+//                            } catch (ParseException e) {
+//                                e.printStackTrace();
+//                            }
+//                            long diff2 = mode_date.getTime() - ques_date.getTime();
+//
+//                            int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+//                            int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+//                            int diffmin2 = (int) (diff2 / (60 * 1000));
+//                            int diffsec2 = (int) (diff2 / (1000));
+//
+//                            if (diffhours2 > 0 && diffmin2 > 0 && diffsec2 > 0) {
+//                                getList(ques.get(position).getExamId(), ques.get(position).getAtt(), "1");
+//                            }
+//                        }
+//                    }
+//
+//                    holder.timer_LL.setVisibility(View.GONE);
+//                    holder.expire.setVisibility(View.GONE);
+//
+//                    Date dateObj1 = null, dateObj2 = null;
+//                    try {
+//                        dateObj1 = sdf.parse(ques.get(position).getEx_start_date() + " " + ques.get(position).getEx_start_time());
+//                        dateObj2 = sdf.parse(currentDate + " " + currentTime);
+//                    } catch (ParseException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    long diff = dateObj1.getTime() - dateObj2.getTime();
+//
+//                    int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
+//                    int diffhours = (int) (diff / (60 * 60 * 1000));
+//                    int diffmin = (int) (diff / (60 * 1000));
+//                    int diffsec = (int) (diff / (1000));
+//
+//                    holder.expire.setText("diffhours: " + diffhours + " diffmin:" + diffmin + " diffsec:" + diffsec);
+//                    long ex_min = 0;
+//                    if (Integer.parseInt(String.valueOf(diffhours)) > 0)
+//                        ex_min = Integer.parseInt(String.valueOf(diffhours));
+//                    if (diffmin > 0)
+//                        ex_min += diffmin;
+//
+//                    long noOfMinutes = (ex_min) * 60 * 1000;
+//
+//                    Date dateObj3 = null, dateObj4 = null;
+//                    try {
+//                        dateObj3 = sdf.parse(ques.get(position).getEx_end_date() + " " + ques.get(position).getEx_end_time());
+//                        dateObj4 = sdf.parse(currentDate + " " + currentTime);
+//                    } catch (ParseException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    long diff2 = dateObj3.getTime() - dateObj4.getTime();
+//
+//                    int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+//                    int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+//                    int diffmin2 = (int) (diff2 / (60 * 1000));
+//                    int diffsec2 = (int) (diff2 / (1000));
+//
+//                    if (diffhours <= 0 && diffmin <= 0 && diffsec <= 0 && diffhours2 > 0 && diffmin2 > 0 && diffsec2 > 0) {
+//                        holder.startBtn.setVisibility(View.VISIBLE);
+//                        holder.timer_LL.setVisibility(View.GONE);
+//                        holder.expire.setVisibility(View.GONE);
+//                    } else if (diffhours2 <= 0 && diffmin2 <= 0 && diffsec2 <= 0) {
+//                        holder.startBtn.setVisibility(View.GONE);
+//                        holder.timer_LL.setVisibility(View.GONE);
+//                        holder.expire.setVisibility(View.VISIBLE);
+//                        if (Integer.parseInt(ques.get(position).getAtt()) > 1) {
+//                            holder.expire.setText("Submitted.");
+//                            holder.expire.setTextColor(Color.parseColor("#FF008000"));
+//                        } else {
+//                            holder.expire.setText("Expired");
+//                        }
+//                    } else {
+//                        holder.startBtn.setVisibility(View.GONE);
+//                        holder.timer_LL.setVisibility(View.VISIBLE);
+//                        holder.expire.setVisibility(View.GONE);
+//
+//                        countDownTimer = new CountDownTimer(noOfMinutes, 1000) {
+//                            @SuppressLint("DefaultLocale")
+//                            public void onTick(long millisUntilFinished) {
+//                                long millis = millisUntilFinished;
+//
+//                                holder.tmTxt.setText("Time left to start: ");
+//                                if (TimeUnit.MILLISECONDS.toHours(millis) <= 24) {
+//                                    List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+//                                    if (quelistItems.size() <= 0)
+//                                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "0");
+//                                    else {
+//                                        if (ques.get(holder.getAdapterPosition()).getModified_date() != null) {
+//                                            Date mode_date = null, ques_date = null;
+//                                            try {
+//                                                mode_date = sdf.parse(ques.get(holder.getAdapterPosition()).getModified_date());
+//                                                ques_date = sdf.parse(quelistItems.get(0).getModified_date());
+//                                            } catch (ParseException e) {
+//                                                e.printStackTrace();
+//                                            }
+//                                            long diff2 = mode_date.getTime() - ques_date.getTime();
+//
+//                                            int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+//                                            int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+//                                            int diffmin2 = (int) (diff2 / (60 * 1000));
+//                                            int diffsec2 = (int) (diff2 / (1000));
+//
+//                                            if (diffhours2 > 0 && diffmin2 > 0 && diffsec2 > 0) {
+//                                                getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "1");
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//
+//                                int minutes = (int) TimeUnit.MILLISECONDS.toMinutes(millis);
+//                                int seconds = (int) (TimeUnit.MILLISECONDS.toSeconds(millis) - (minutes * 60));
+//
+//                                holder.tmTxt.setText(String.format("%02d:%02d", minutes, seconds));
+//                            }
+//
+//                            @Override
+//                            public void onFinish() {
+////                                holder.tmTxt.setText("00:00");
+//                                holder.startBtn.setVisibility(View.VISIBLE);
+////                                        Toast.makeText(context, "1*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
+//                                List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+//                                if(quelistItems.size()<=0)
+//                                    getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "0");
+//                                Log.d("setgetList", "1111"+ques.get(holder.getAdapterPosition()).getExamId());
+//
+//                                holder.timer_LL.setVisibility(View.GONE);
+//                                holder.expire.setVisibility(View.GONE);
+//                                countDownTimer = null;
+//                            }
+//                        }.start();
+//                    }
+//                } else {
+//                    holder.startBtn.setVisibility(View.GONE);
+//                    holder.timer_LL.setVisibility(View.GONE);
+//                    holder.expire.setVisibility(View.VISIBLE);
+//                    holder.expire.setText("Expired");
+//                }
+//            } else {
+//                holder.startBtn.setVisibility(View.GONE);
+//                holder.timer_LL.setVisibility(View.GONE);
+//                holder.expire.setVisibility(View.VISIBLE);
+//                holder.expire.setText("Expired");
+//            }
+//        } else {
+//            holder.startBtn.setVisibility(View.GONE);
+//            holder.timer_LL.setVisibility(View.GONE);
+//            holder.expire.setVisibility(View.VISIBLE);
+//            holder.expire.setText("Expired");
+//        }
+//    }
+
+
+
+
+    @SuppressLint({"SetTextI18n", "SimpleDateFormat"})
+    @Override
+    public void onBindViewHolder(@NonNull QuizAdapter.ViewHolder holder, int position) {
+        QueResponse = ques.get(holder.getAdapterPosition());
+//        Log.d("ques", new Gson().toJson(ques));
+        holder.title.setText(ques.get(holder.getAdapterPosition()).getExamTitle());
+        if(ques.get(holder.getAdapterPosition()).getDescription().isEmpty())
+            holder.desc.setVisibility(View.GONE);
+        else
+            holder.desc.setText(Html.fromHtml(Html.fromHtml(ques.get(holder.getAdapterPosition()).getDescription()).toString()));
+
+        if(ques.get(holder.getAdapterPosition()).getInstructions().isEmpty())
+            holder.instLL.setVisibility(View.GONE);
+        else {
+            holder.inst.setText(Html.fromHtml(Html.fromHtml(ques.get(holder.getAdapterPosition()).getInstructions()).toString()));
+        }
+
+
+
+        if(ques.get(holder.getAdapterPosition()).getCompulsory_que() != null && Integer.parseInt(ques.get(holder.getAdapterPosition()).getCompulsory_que()) >0 ) {
+            holder.CompQueLL.setVisibility(View.VISIBLE);
+            holder.compQue.setText(ques.get(holder.getAdapterPosition()).getCompulsory_que());
+        }
+
+
+
+        holder.marks.setText(ques.get(holder.getAdapterPosition()).getTotalMarks());
+        holder.exdate.setText(ques.get(holder.getAdapterPosition()).getEx_start_date());
+
+
+//        DecimalFormat durFormat = new DecimalFormat("00");
+//        String dur_map= "min";
+//
+//        if(Integer.parseInt(ques.get(holder.getAdapterPosition()).getDurationH())>0)
+//            dur_map = "hr";
+//        holder.dur.setText(durFormat.format(Integer.parseInt(ques.get(holder.getAdapterPosition()).getDurationH()))+":"+durFormat.format(Integer.parseInt(ques.get(holder.getAdapterPosition()).getDurationM()))+" "+dur_map);
+
+        DecimalFormat durFormat = new DecimalFormat("00");
+        String dur_map = "min";
+
+// Trim the input to remove any extra spaces
+        String durationH = ques.get(holder.getAdapterPosition()).getDurationH().trim();
+        String durationM = ques.get(holder.getAdapterPosition()).getDurationM().trim();
+
+        try {
+            // Check if hours are greater than 0, update the dur_map to "hr"
+            if (Integer.parseInt(durationH) > 0) {
+                dur_map = "hr";
+            }
+
+            // Set the formatted duration text
+            holder.dur.setText(durFormat.format(Integer.parseInt(durationH)) + ":" + durFormat.format(Integer.parseInt(durationM)) + " " + dur_map);
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            // Optionally set a default value or show an error message
+            holder.dur.setText("Invalid duration");
+        }
+
+
+
+        holder.on_time.setText(convert12(ques.get(holder.getAdapterPosition()).getEx_start_time())+" - "+ convert12(ques.get(holder.getAdapterPosition()).getEx_end_time()));
+
+        holder.ques.setText(ques.get(holder.getAdapterPosition()).getQcount());
+        holder.passing.setText(ques.get(holder.getAdapterPosition()).getPassingScore()+"%");
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+//        String date = GetDetail.getRealTime();
+        String date = GetDetail.getRealTime(); // Fetch the real time directly
+
+
+
+        Log.d("Timegetreal1: " , String.valueOf(date));
+
+
+        holder.expire.setVisibility(View.VISIBLE);
+
+        if(Integer.parseInt(ques.get(holder.getAdapterPosition()).getTimeLimitB())>0 && ques.get(holder.getAdapterPosition()).getEx_start_date() != null) {
+            if (ques.get(holder.getAdapterPosition()).getEx_start_date().equals(currentDate)) {
+
+                if ((ques.get(holder.getAdapterPosition()).getRetake().equals("1") && (Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) <= Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit())
+                        || Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit()) >10)) ||
+                        ques.get(holder.getAdapterPosition()).getRetake().equals("0")
+                                && Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) <= 1) {
+                    holder.startBtn.setVisibility(View.VISIBLE);
+//                            Toast.makeText(context, "3*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
+
+                    List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+                    if(quelistItems.size()<=0)
+                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "0");
+                    else {
+//                        if(ques.get(holder.getAdapterPosition()).getModified_date() != null) {
+//                            Date mode_date = null, ques_date = null;
+//                            try {
+//                                mode_date = sdf.parse(ques.get(holder.getAdapterPosition()).getModified_date());
+//                                ques_date = sdf.parse(quelistItems.get(0).getModified_date());
+//                            } catch (ParseException e) {
+//                                e.printStackTrace();
+//                            }
+////                            System.out.println("mode_date" + mode_date);
+////                            System.out.println("ques_date" + ques_date);
+//
+//                            // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
+//                            long diff2 = mode_date.getTime() - ques_date.getTime();
+//
+//                            int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+//
+//                            int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+//
+//                            int diffmin2 = (int) (diff2 / (60 * 1000));
+//
+//                            int diffsec2 = (int) (diff2 / (1000));
+//                            Log.d("updatediff", "diffDays2: "+diffDays2+ "diffhours: "+diffhours2+" diffmin:"+diffmin2+" diffsec:"+diffsec2);
+//
+//                            if (diffhours2 > 0 && diffmin2 > 0 && diffsec2 > 0) {
+//                                getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "1");
+//                            }
+//                        }
+
+
+                        if (ques.get(holder.getAdapterPosition()).getModified_date() != null && quelistItems.size() > 0) {
+                            Date mode_date = null, ques_date = null;
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()); // Replace with your date format
+
+                            try {
+                                // Parsing the modified date of the current question
+                                mode_date = sdf.parse(ques.get(holder.getAdapterPosition()).getModified_date());
+
+                                // Check that quelistItems has elements and get the modified date safely
+                                if (quelistItems.get(0).getModified_date() != null) {
+                                    ques_date = sdf.parse(quelistItems.get(0).getModified_date());
+                                } else {
+                                    Log.e("DateError", "Modified date for the question list item is null.");
+                                    return; // Exit if ques_date is null
+                                }
+
+                                if (mode_date != null && ques_date != null) {
+                                    // Calculate the difference in milliseconds
+                                    long diff2 = mode_date.getTime() - ques_date.getTime();
+
+                                    // Calculate the differences in various units
+                                    int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+                                    int diffHours2 = (int) (diff2 / (60 * 60 * 1000));
+                                    int diffMin2 = (int) (diff2 / (60 * 1000));
+                                    int diffSec2 = (int) (diff2 / 1000);
+
+                                    Log.d("updatediff", "diffDays2: " + diffDays2 + ", diffHours: " + diffHours2 + ", diffMin: " + diffMin2 + ", diffSec: " + diffSec2);
+
+                                    // Example condition to trigger getList() call
+                                    if (diffHours2 > 0 || diffMin2 > 0 || diffSec2 > 0) { // Adjust logic based on your requirement
+                                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "1");
+                                    }
+                                } else {
+                                    Log.e("DateError", "One of the parsed dates is null.");
+                                }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                                Log.e("DateError", "Failed to parse dates. Error: " + e.getMessage());
+                            }
+                        }
+                        else {
+                            Log.e("DateError", "Modified date or question list is empty.");
+                        }
+
+
+
+                    }
+                            /*if (GetDetail.att_data.length() <= 0) {
+                                getList(ques.get(position).getExamId(), ques.get(position).getAtt());
+                                Log.d("setgetList", "3333"+ques.get(position).getExamId());
+                            }*/
+
+                    holder.timer_LL.setVisibility(View.GONE);
+                    holder.expire.setVisibility(View.GONE);
+
+                    Date dateObj1 = null, dateObj2 = null;
+                    try {
+                        dateObj1 = sdf.parse(ques.get(holder.getAdapterPosition()).getEx_start_date() + " " + ques.get(holder.getAdapterPosition()).getEx_start_time());
+                        dateObj2 = sdf.parse(currentDate + " " + currentTime);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("dateObj1**"+dateObj1);
+                    System.out.println("dateObj2**"+dateObj2 + "\n");
+
+                    DecimalFormat crunchifyFormatter = new DecimalFormat("###,###");
+
+                    // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
+                    long diff = dateObj1.getTime() - dateObj2.getTime();
+
+                    int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
+                    System.out.println("difference between days: " + diffDays);
+
+                    int diffhours = (int) (diff / (60 * 60 * 1000));
+                    System.out.println("difference between hours: " + crunchifyFormatter.format(diffhours));
+
+                    int diffmin = (int) (diff / (60 * 1000));
+                    System.out.println("difference between minutues: " + crunchifyFormatter.format(diffmin));
+
+                    int diffsec = (int) (diff / (1000));
+                    System.out.println("difference between seconds: " + crunchifyFormatter.format(diffsec));
+
+                    holder.expire.setText("diffhours: "+diffhours+" diffmin:"+diffmin+" diffsec:"+diffsec);
+                    long ex_min = 0;
+                    if (Integer.parseInt(crunchifyFormatter.format(diffhours)) > 0)
+                        ex_min = Integer.parseInt(crunchifyFormatter.format(diffhours)) ;
+                    if (diffmin > 0)
+                        ex_min += diffmin;
+
+                    long noOfMinutes = (ex_min) * 60 * 1000;
+
+                    Date dateObj3 = null, dateObj4 = null;
+                    try {
+                        dateObj3 = sdf.parse(ques.get(holder.getAdapterPosition()).getEx_end_date() + " " + ques.get(holder.getAdapterPosition()).getEx_end_time());
+                        dateObj4 = sdf.parse(currentDate + " " + currentTime);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(dateObj1);
+                    System.out.println(dateObj2 + "\n");
+
+                    DecimalFormat crunchifyFormatter2 = new DecimalFormat("###,###");
+
+                    // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
+                    long diff2 = dateObj3.getTime() - dateObj4.getTime();
+
+                    int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+
+                    int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+
+                    int diffmin2 = (int) (diff2 / (60 * 1000));
+
+                    int diffsec2 = (int) (diff2 / (1000));
+
+//                holder.expire.setText("diffhours: "+diffhours+" diffmin:"+diffmin+" diffsec:"+diffsec);
+
+                    if (diffhours <= 0 && diffmin <= 0 && diffsec <= 0 && diffhours2 > 0 && diffmin2 > 0 && diffsec2 > 0) {
+                        holder.startBtn.setVisibility(View.VISIBLE);
+//                                Toast.makeText(context, "4*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
+
+                               /* if (GetDetail.att_data.length() <= 0) {
+                                    getList(ques.get(position).getExamId(), ques.get(position).getAtt());
+                                    Log.d("setgetList", "4444");
+                                }*/
+                        holder.timer_LL.setVisibility(View.GONE);
+                        holder.expire.setVisibility(View.GONE);
+                    } else if (diffhours2 <= 0 && diffmin2 <= 0 && diffsec2 <= 0) {
+                        holder.startBtn.setVisibility(View.GONE);
+                        holder.timer_LL.setVisibility(View.GONE);
+                        holder.expire.setVisibility(View.VISIBLE);
+                        if(Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt())>1) {
+                            holder.expire.setText("Submited.");
+                            holder.expire.setTextColor(Color.parseColor("#FF008000"));
+                        }
+                        else
+                            holder.expire.setText("Expired");
+                    } else {
+                        holder.startBtn.setVisibility(View.GONE);
+                        holder.timer_LL.setVisibility(View.VISIBLE);
+                        holder.expire.setVisibility(View.GONE);
+
+                        countDownTimer = new CountDownTimer(noOfMinutes, 1000) {
+                            @SuppressLint("DefaultLocale")
+                            public void onTick(long millisUntilFinished) {
+                                long millis = millisUntilFinished;
+                                Log.d("hr: ", TimeUnit.MILLISECONDS.toHours(millis) + " min: " + TimeUnit.MILLISECONDS.toMinutes(millis));
+                                       /* if(TimeUnit.MILLISECONDS.toHours(millis) >=1) {
+                                            holder.tmTxt.setText("Will start in : ");
+                                            holder.timer.setText(String.valueOf(TimeUnit.MILLISECONDS.toHours(millis))+" hr");//set
+
+                                        }
+                                        else {*/
+                                holder.tmTxt.setText("Time left to start: ");
+
+//                                        if (TimeUnit.MILLISECONDS.toHours(millis) ==0 && TimeUnit.MILLISECONDS.toMinutes(millis) < 10) {
+                                if (TimeUnit.MILLISECONDS.toHours(millis) <=24) {
+                                    List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+                                    if(quelistItems.size()<=0)
+                                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "0");
+                                    else{
+                                        if(ques.get(holder.getAdapterPosition()).getModified_date() != null) {
+                                            Date mode_date = null, ques_date = null;
+                                            try {
+                                                mode_date = sdf.parse(ques.get(holder.getAdapterPosition()).getModified_date());
+                                                ques_date = sdf.parse(quelistItems.get(0).getModified_date());
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                            System.out.println("mode_date" + mode_date);
+                                            System.out.println("ques_date" + ques_date);
+
+                                            // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
+                                            long diff2 = mode_date.getTime() - ques_date.getTime();
+
+                                            int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+
+                                            int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+
+                                            int diffmin2 = (int) (diff2 / (60 * 1000));
+
+                                            int diffsec2 = (int) (diff2 / (1000));
+                                            Log.d("updatediff", "diffDays2: "+diffDays2+ "diffhours: "+diffhours2+" diffmin:"+diffmin2+" diffsec:"+diffsec2);
+
+                                            if (diffhours2 > 0 && diffmin2 > 0 && diffsec2 > 0) {
+                                                getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "1");
+                                            }
+                                        }
+                                    }
+
+                                    holder.timer.setTextColor(Color.parseColor("#FFF55625"));
+
+                                    Log.d("exam_id onTick", ques.get(holder.getAdapterPosition()).getExamId());
+                                }
+                                hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis), TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+                                holder.timer.setText(hms);//set
+//                                        }
+                            }
+
+                            public void onFinish() {
+                               /* if(submitQuiz)
+                                    SubmitQuiz();
+                                timer.setText("TIME'S UP!!"); //On finish change timer text*/
+
+                                holder.startBtn.setVisibility(View.VISIBLE);
+//                                        Toast.makeText(context, "1*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
+                                List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+                                if(quelistItems.size()<=0)
+                                    getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "0");
+                                Log.d("setgetList", "1111"+ques.get(holder.getAdapterPosition()).getExamId());
+
+                                holder.timer_LL.setVisibility(View.GONE);
+                                holder.expire.setVisibility(View.GONE);
+                                countDownTimer = null;//set CountDownTimer to null
+//                                        holder.startBtn.performClick();
+                            }
+                        }.start();
+                    }
+
+                }
+                else {
+                    holder.startBtn.setVisibility(View.GONE);
+                    holder.timer_LL.setVisibility(View.GONE);
+                    holder.expire.setVisibility(View.VISIBLE);
+                    holder.expire.setText("Submited.");
+                    holder.expire.setTextColor(Color.parseColor("#FF008000"));
+                }
+            }
+            else{
+                holder.startBtn.setVisibility(View.GONE);
+                holder.timer_LL.setVisibility(View.GONE);
+                holder.expire.setVisibility(View.GONE);
+            }
+        }
+
+        else {
+            holder.dateLL.setVisibility(View.GONE);
+            holder.ex_timeLL.setVisibility(View.GONE);
+            holder.durLL.setVisibility(View.GONE);
+            if(ques.get(holder.getAdapterPosition()).getRetake().equals("1")) {
+                if (Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) <= Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit()) ||Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit())>10) {
+                    holder.startBtn.setVisibility(View.VISIBLE);
+//                    Toast.makeText(context, "2*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
+
+                    List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+                    if(quelistItems.size()<=0)
+                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "0");
+
+
+                    holder.timer_LL.setVisibility(View.GONE);
+                    holder.expire.setVisibility(View.GONE);
+                }
+                else{
+                    holder.startBtn.setVisibility(View.GONE);
+                    holder.timer_LL.setVisibility(View.GONE);
+                    holder.expire.setVisibility(View.VISIBLE);
+                    holder.expire.setText("Submited.");
+                    holder.expire.setTextColor(Color.parseColor("#FF008000"));
+
+                }
+            }
+            else{
+                holder.startBtn.setVisibility(View.GONE);
+                holder.timer_LL.setVisibility(View.GONE);
+                holder.expire.setVisibility(View.VISIBLE);
+                holder.expire.setText("Submited.");
+                holder.expire.setTextColor(Color.parseColor("#FF008000"));
+
+            }
+
+        }
+
+        holder.startBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ConnectivityManager connectivityManager=(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo=connectivityManager.getActiveNetworkInfo();
+
+                if (networkInfo ==null) {
+                    toastMsg("Check internet connection!");
+                }
+                else{
+                    Date dateObj3 = null, dateObj4 = null;
+                    try {
+                        dateObj3 = sdf.parse(ques.get(holder.getAdapterPosition()).getEx_end_date() + " " + ques.get(holder.getAdapterPosition()).getEx_end_time());
+                        dateObj4 = sdf.parse(currentDate + " " + currentTime);
+                        Log.d("dateObj3dateObj3", dateObj3 + "   " + dateObj4);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    DecimalFormat crunchifyFormatter2 = new DecimalFormat("###,###");
+
+                    // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
+                    long diff2 = dateObj3.getTime() - dateObj4.getTime();
+
+                    int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+
+                    int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+
+                    int diffmin2 = (int) (diff2 / (60 * 1000));
+
+                    int diffsec2 = (int) (diff2 / (1000));
+                    Log.d("diff22", diffhours2 + " :: " + diffsec2 + " :: " + diffmin2);
+                    if (diffhours2 > 0 || diffmin2 > 0 || diffsec2 > 0) {
+
+                        Log.d("selexam", String.valueOf(ques.get(holder.getAdapterPosition()).getExamId() + " position: " + holder.getAdapterPosition()));
+
+                        Intent i = new Intent(context, MainActivity.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        i.putExtra("exam_id", ques.get(holder.getAdapterPosition()).getExamId());
+                        i.putExtra("exam_title", ques.get(holder.getAdapterPosition()).getExamTitle());
+                        i.putExtra("st_date", ques.get(holder.getAdapterPosition()).getEx_start_date());
+                        i.putExtra("st_time", ques.get(holder.getAdapterPosition()).getEx_start_time());
+                        i.putExtra("end_date", ques.get(holder.getAdapterPosition()).getEx_end_date());
+                        i.putExtra("end_time", ques.get(holder.getAdapterPosition()).getEx_end_time());
+                        i.putExtra("exam_hr", ques.get(holder.getAdapterPosition()).getDurationH());
+                        i.putExtra("exam_min", ques.get(holder.getAdapterPosition()).getDurationM());
+                        i.putExtra("showtime", ques.get(holder.getAdapterPosition()).getTimeLimitB());
+                        i.putExtra("seeresult", ques.get(holder.getAdapterPosition()).getSeeResult());
+                        i.putExtra("att_no", ques.get(holder.getAdapterPosition()).getAtt());
+                        context.startActivity(i);
+                    } else {
+                        toastMsg("Quiz time expired");
+                        holder.startBtn.setVisibility(View.GONE);
+                        holder.expire.setVisibility(View.VISIBLE);
+                        if (Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) > 1) {
+                            holder.expire.setText("Submited.");
+                            holder.expire.setTextColor(Color.parseColor("#FF008000"));
+                        } else
+                            holder.expire.setText("Expired.");
+                    }
+                }
+            }
+        });
+
+
+    }
+
+
+
+
+
+
+    //old code
+
+//    @SuppressLint({"SetTextI18n", "SimpleDateFormat"})
+//    @Override
+//    public void onBindViewHolder(@NonNull QuizAdapter.ViewHolder holder, int position) {
+//        // Get the current item in the list
+//        QueResponse = ques.get(position);
+//
+//        // Log the position and check if QueResponse is null
+//        if (QueResponse == null) {
+//            Log.e("QuizAdapter", "Item at position " + position + " is null");
+//            return; // Skip binding this view
+//        }
+//
+//        Log.d("QuizAdapter", "Binding view for position: " + position);
+//
+//        // Set exam title
+//        holder.title.setText(QueResponse.getExamTitle());
+//
+//        // Handle description
+//        if (QueResponse.getDescription() != null && !QueResponse.getDescription().isEmpty()) {
+//            holder.desc.setText(Html.fromHtml(Html.fromHtml(QueResponse.getDescription()).toString()));
+//            holder.desc.setVisibility(View.VISIBLE);
+//        } else {
+//            holder.desc.setVisibility(View.GONE);
+//        }
+//
+//        // Handle instructions
+//        if (QueResponse.getInstructions() != null && !QueResponse.getInstructions().isEmpty()) {
+//            holder.inst.setText(Html.fromHtml(Html.fromHtml(QueResponse.getInstructions()).toString()));
+//            holder.instLL.setVisibility(View.VISIBLE);
+//        } else {
+//            holder.instLL.setVisibility(View.GONE);
+//        }
+//
+//        String compulsoryQue = QueResponse.getCompulsory_que();
+//
+//// Check if the string is not null and not empty
+//        if (compulsoryQue != null && !compulsoryQue.isEmpty()) {
+//            try {
+//                int compulsoryQueValue = Integer.parseInt(compulsoryQue);
+//                if (compulsoryQueValue > 0) {
+//                    holder.CompQueLL.setVisibility(View.VISIBLE);
+//                    holder.compQue.setText(compulsoryQue);
+//                } else {
+//                    holder.CompQueLL.setVisibility(View.GONE);
+//                }
+//            } catch (NumberFormatException e) {
+//                // Handle the case where parsing fails
+//                holder.CompQueLL.setVisibility(View.GONE);
+//            }
+//        } else {
+//            holder.CompQueLL.setVisibility(View.GONE);
+//        }
+//
+//        // Format and set marks and dates
+//        holder.marks.setText(QueResponse.getTotalMarks());
+//        holder.exdate.setText(QueResponse.getEx_start_date());
+//
+//
+//        String dur_map = "min";
+//        int durationHours = 0, durationMinutes = 0;
+//        try {
+//            // Trim the values and handle possible null values
+//            String durationH = QueResponse.getDurationH() != null ? QueResponse.getDurationH().trim() : "0";
+//            String durationM = QueResponse.getDurationM() != null ? QueResponse.getDurationM().trim() : "0";
+//
+//            // Parse the trimmed values
+//            durationHours = Integer.parseInt(durationH);
+//            durationMinutes = Integer.parseInt(durationM);
+//
+//            // Check if durationHours > 0, then set the dur_map to "hr"
+//            if (durationHours > 0) dur_map = "hr";
+//        } catch (NumberFormatException e) {
+//            Log.e("QuizAdapter", "Error parsing duration values", e);
+//        }
+//
+//        DecimalFormat durFormat = new DecimalFormat("00");
+//        holder.dur.setText(durFormat.format(durationHours) + ":" + durFormat.format(durationMinutes) + " " + dur_map);
+//
+//        holder.on_time.setText(convert12(QueResponse.getEx_start_time()) + " - " + convert12(QueResponse.getEx_end_time()));
+//
+//        holder.ques.setText(QueResponse.getQcount());
+//        holder.passing.setText(QueResponse.getPassingScore() + "%");
+//
+//        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+//        String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+//
+//        // Log the current date and time
+//        Log.d("QuizAdapter", "Current Date: " + currentDate);
+//        Log.d("QuizAdapter", "Current Time: " + currentTime);
+//
+//        // Check for null or empty exam start date
+//        if (QueResponse.getEx_start_date() == null || QueResponse.getEx_start_time() == null) {
+//            Log.e("QuizAdapter", "Exam start date or time is missing for position: " + position);
+//            return;
+//        }
+//
+//        // Date format used for parsing
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+//
+//        try {
+//            String startDateString = QueResponse.getEx_start_date() + " " + QueResponse.getEx_start_time();
+//            String endDateString = QueResponse.getEx_end_date() + " " + QueResponse.getEx_end_time();
+//
+//            Date startDate = sdf.parse(startDateString);
+//            Date endDate = sdf.parse(endDateString);
+//            Date currentDateTime = sdf.parse(currentDate + " " + currentTime);
+//
+//            if (startDate != null && endDate != null && currentDateTime != null) {
+//                long timeUntilStart = startDate.getTime() - currentDateTime.getTime();
+//                long timeUntilEnd = endDate.getTime() - currentDateTime.getTime();
+//
+//                if (timeUntilStart > 0) {
+//                    handleUpcomingQuiz(holder, timeUntilStart, timeUntilEnd, position);
+//                } else if (timeUntilEnd > 0) {
+//                    handleOngoingQuiz(holder, timeUntilEnd, position);
+//                } else {
+//                    handleExpiredQuiz(holder);
+//                }
+//            } else {
+//                Log.e("QuizAdapter", "Error parsing date or time for position: " + position);
+//
+//            }
+//        } catch (ParseException e) {
+//            Log.e("QuizAdapter", "Error parsing date/time strings", e);
+//            handleInvalidDates(holder);
+//        }
+//
+//
+//        holder.startBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                ConnectivityManager connectivityManager=(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//                NetworkInfo networkInfo=connectivityManager.getActiveNetworkInfo();
+//                if (networkInfo ==null) {
+//                    toastMsg("Check internet connection!");
+//                }
+//                else{
+//                    Date dateObj3 = null, dateObj4 = null;
+//                    try {
+//                        dateObj3 = sdf.parse(ques.get(holder.getAdapterPosition()).getEx_end_date() + " " + ques.get(holder.getAdapterPosition()).getEx_end_time());
+//                        dateObj4 = sdf.parse(currentDate + " " + currentTime);
+//                        Log.d("dateObj3dateObj3", dateObj3 + "   " + dateObj4);
+//                    } catch (ParseException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    DecimalFormat crunchifyFormatter2 = new DecimalFormat("###,###");
+//
+//                    // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
+//                    long diff2 = dateObj3.getTime() - dateObj4.getTime();
+//
+//                    int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+//
+//                    int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
+//
+//                    int diffmin2 = (int) (diff2 / (60 * 1000));
+//
+//                    int diffsec2 = (int) (diff2 / (1000));
+//                    Log.d("diff22", diffhours2 + " :: " + diffsec2 + " :: " + diffmin2);
+//                    if (diffhours2 > 0 || diffmin2 > 0 || diffsec2 > 0) {
+//
+//
+//                        Log.d("selexam", String.valueOf(ques.get(holder.getAdapterPosition()).getExamId() + " position: " + holder.getAdapterPosition()));
+//                        Intent i = new Intent(context, MainActivity.class);
+//                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//                        i.putExtra("exam_id", ques.get(holder.getAdapterPosition()).getExamId());
+//                        i.putExtra("exam_title", ques.get(holder.getAdapterPosition()).getExamTitle());
+//                        i.putExtra("st_date", ques.get(holder.getAdapterPosition()).getEx_start_date());
+//                        i.putExtra("st_time", ques.get(holder.getAdapterPosition()).getEx_start_time());
+//                        i.putExtra("end_date", ques.get(holder.getAdapterPosition()).getEx_end_date());
+//                        i.putExtra("end_time", ques.get(holder.getAdapterPosition()).getEx_end_time());
+//                        i.putExtra("exam_hr", ques.get(holder.getAdapterPosition()).getDurationH());
+//                        i.putExtra("exam_min", ques.get(holder.getAdapterPosition()).getDurationM());
+//                        i.putExtra("showtime", ques.get(holder.getAdapterPosition()).getTimeLimitB());
+//                        i.putExtra("seeresult", ques.get(holder.getAdapterPosition()).getSeeResult());
+//                        i.putExtra("att_no", ques.get(holder.getAdapterPosition()).getAtt());
+//                        Log.d("Attempt limit  is" , String.valueOf(ques.get(holder.getAdapterPosition()).getAttemptLimit()));
+//                        context.startActivity(i);
+//                    } else {
+//                        toastMsg("Quiz time expired");
+//                        holder.startBtn.setVisibility(View.GONE);
+//                        holder.expire.setVisibility(View.VISIBLE);
+//                        if (Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) > 1) {
+//                            holder.expire.setText("Submited.");
+//                            holder.expire.setTextColor(Color.parseColor("#FF008000"));
+//                        } else
+//                            holder.expire.setText("Expired.");
+//                    }
+//                }
+//            }
+//        });
+//
+//    }
+
+
+    private void handleUpcomingQuiz(@NonNull QuizAdapter.ViewHolder holder, long timeUntilStart, long timeUntilEnd, int position) {
+        holder.startBtn.setVisibility(View.GONE);
+        holder.timer_LL.setVisibility(View.VISIBLE);
+        holder.expire.setVisibility(View.GONE);
+
+        countDownTimer = new CountDownTimer(timeUntilStart, 1000) {
+            @SuppressLint("DefaultLocale")
+            @Override
+            public void onTick(long millisUntilFinished) {
+                updateCountdown(holder.timer, millisUntilFinished);
+            }
+
+            @Override
+            public void onFinish() {
+                holder.timer.setText("00:00:00");
+                holder.startBtn.setVisibility(View.VISIBLE);
+                holder.timer_LL.setVisibility(View.GONE);
+
+//                holder.tmTxt.setVisibility(View.GONE);
+
+                holder.expire.setVisibility(View.GONE);
+            }
+        }.start();
+    }
+
+    private void handleOngoingQuiz(@NonNull QuizAdapter.ViewHolder holder, long timeUntilEnd, int position) {
+        // Show the start button if the exam is ongoing
+        holder.tmTxt.setVisibility(View.GONE); // Hide the timer text
+        holder.startBtn.setVisibility(View.VISIBLE);
+        holder.timer_LL.setVisibility(View.GONE);
+        holder.expire.setVisibility(View.GONE);
+
+        // Set up the countdown timer until the end of the exam
+        countDownTimer = new CountDownTimer(timeUntilEnd, 1000) {
+            @SuppressLint("DefaultLocale")
+            @Override
+            public void onTick(long millisUntilFinished) {
+                updateCountdown(holder.timer, millisUntilFinished);
+            }
+
+            @Override
+            public void onFinish() {
+                holder.timer.setText("00:00:00");
+                holder.startBtn.setVisibility(View.GONE);  // Hide the button once the exam has expired
+                holder.timer_LL.setVisibility(View.GONE);
+                holder.expire.setVisibility(View.VISIBLE);
+                holder.expire.setText("Expired");
+            }
+        }.start();
+    }
+
+
+
+    private void handleExpiredQuiz(@NonNull QuizAdapter.ViewHolder holder) {
+        holder.startBtn.setVisibility(View.GONE);
+        holder.timer_LL.setVisibility(View.GONE);
+        holder.expire.setVisibility(View.VISIBLE);
+        holder.expire.setText("Expired");
+    }
+
+    private void handleInvalidDates(@NonNull QuizAdapter.ViewHolder holder) {
+        holder.startBtn.setVisibility(View.GONE);
+        holder.timer_LL.setVisibility(View.GONE);
+        holder.expire.setVisibility(View.GONE);
+    }
+
+    private void updateCountdown(TextView timerView, long millisUntilFinished) {
+        int hours = (int) (millisUntilFinished / (1000 * 60 * 60));
+        millisUntilFinished %= (1000 * 60 * 60);
+        int minutes = (int) (millisUntilFinished / (1000 * 60));
+        millisUntilFinished %= (1000 * 60);
+        int seconds = (int) (millisUntilFinished / 1000);
+        timerView.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+    }
+
+
+
+    private void handleStartButtonClick(@NonNull QuizAdapter.ViewHolder holder, int position, String currentDate, String currentTime) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo == null) {
+            toastMsg("Check internet connection!");
+            return;
+        }
+
+        // Similar date parsing logic as in onBindViewHolder() method
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            Date endDate = sdf.parse(QueResponse.getEx_end_date() + " " + QueResponse.getEx_end_time());
+            Date currentDateTime = sdf.parse(currentDate + " " + currentTime);
+
+            if (endDate != null && currentDateTime != null) {
+                long timeDifference = endDate.getTime() - currentDateTime.getTime();
+                if (timeDifference <= 0) {
+                    toastMsg("Quiz already expired!");
+                } else {
+                    Intent intent = new Intent(context, MainActivity.class);
+                    Log.d( "start click: ","ijdsioojfiosdj");
+                    intent.putExtra("exam_id", ques.get(holder.getAdapterPosition()).getExamId());
+                    context.startActivity(intent);
+                }
+            }
+        } catch (ParseException e) {
+            Log.e("QuizAdapter", "Error parsing end date or current time", e);
+            toastMsg("Error starting quiz!");
+        }
+    }
+
+
+
+
+    public  void  toastMsg(String msg){
+
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE ); ;
+        View toast = inflater.inflate(R.layout.toast, null);
+
+        TextView text = (TextView) toast.findViewById(R.id.toast_txt);
+        text.setText(msg);
+        Toast view  = new Toast(context);
+        // Set layout to toast
+        view.setView(toast);
+        view.setGravity(Gravity.BOTTOM| Gravity.FILL_HORIZONTAL, 0, 0);
+        view.setDuration(Toast.LENGTH_SHORT);
+        view.show();
+
+    }
+    public String convert12(String str)
+    {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat _24HourSDF = new SimpleDateFormat("HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat _12HourSDF = new SimpleDateFormat("hh:mm a");
+        Date _24HourDt = null;
+        try {
+            _24HourDt = _24HourSDF.parse(str);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+//        System.out.println(_24HourDt);
+        assert _24HourDt != null;
+//        System.out.println(_12HourSDF.format(_24HourDt));
+
+        return _12HourSDF.format(_24HourDt);
+
+
+    }
+
+
+    private void getList(String examid, String att, String modify) {
+        if(getrlistactive) {
+            if(modify.equals("1")){
+
+            }
+            Log.d("Ques_res", "Ques_resQues_res" + examid);
+            Api apiService = RetrofitClient.getApiService();
+            Call<QlistRes> userResponse = apiService.QList(examid);
+            userResponse.enqueue(new Callback<QlistRes>() {
+                public QlistRes QueResponse;
+
+                @Override
+                public void onResponse(Call<QlistRes> call, Response<QlistRes> response) {
+                    QueResponse = response.body();
+                    GetDetail.current_que = QueResponse.getData();
+                    Log.d("Ques_res", new Gson().toJson(QueResponse));
+                    GetDetail.att_data = new JSONArray();
+
+                    JSONArray jsonArray = new JSONArray();
+                    for (QlistRes.Ques quearr : QueResponse.getData()) {
+                        Log.d("saveToInternalStorage11", "saveToInternalStorage");
+
+                        if (!quearr.getImage().isEmpty()){
+//                            if (checkPermission()) {
+                            URL url = null;
+                            Bitmap bitmap = null;
+                            String urlString = quearr.getImage();
+                            urlString=  urlString.substring(urlString.lastIndexOf('/') + 1).split("\\?")[0].split("#")[0];
+
+                            try {
+                                url = new URL("http://bbsc.createonlineacademy.com/public/uploads/questions/1622104732.jpg");
+                                bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            mSavedInfo = saveToInternalStorage(bitmap, urlString);
+                            Log.d("quearr.getImage()", quearr.getImage());
+                        }
+
+
+//                        add in sqllite
+                        dbManager.open();
+                        dbManager.insertQuesList("Questions", QueResponse.getData());
+                        dbManager.close();
+                    }
+
+                    Log.d("att_data***", new Gson().toJson(GetDetail.att_data));
+
+                    SharedPrefManager.getInstance(context).addQuesData(jsonArray.toString(), jsonArray.toString(), QueResponse.getData());
+                }
+
+                @Override
+                public void onFailure(Call<QlistRes> call, Throwable t) {
+                    getList(examid, att, "modify");
+                    Log.d("Ques_res", "Ques_resFailure");
+                }
+            });
+
+            getrlistactive = false;
+        }
+    }
+    public boolean checkPermission() {
+        if (ActivityCompat.checkSelfPermission((Activity)context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity)context, new String[]{
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+            }, 10);
+        }
+        int READ_EXTERNAL_PERMISSION = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if((READ_EXTERNAL_PERMISSION != PackageManager.PERMISSION_GRANTED)) {
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_WRITE);
+            return false;
+        }
+        return true;
+    }
+
+    private String saveToInternalStorage(Bitmap bitmapImage,String urlString){
+
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        File mypath = new File(directory, urlString);
+        if(!mypath.exists()) {
+            FileOutputStream fos = null;
+
+            try {
+
+                fos = new FileOutputStream(mypath);
+
+                bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+
+            } finally {
+
+                try {
+                    fos.close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+        return directory.getAbsolutePath();
+    }
+
+    @Override
+    public int getItemCount() {
+        return ques.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder{
+        TextView title,desc,inst, marks, ques, passing, tmTxt, timer,expire, exdate, dur, on_time, compQue;
+        Button startBtn;
+        LinearLayout instLL, timer_LL, CompQueLL, dateLL, ex_timeLL, durLL;
+
+        public ViewHolder(View view) {
+            super(view);
+            title = view.findViewById(R.id.title);
+            desc = view.findViewById(R.id.desc);
+            inst = view.findViewById(R.id.instruction);
+            marks = view.findViewById(R.id.marks);
+            ques = view.findViewById(R.id.noQue);
+            passing = view.findViewById(R.id.passing);
+            startBtn = view.findViewById(R.id.startBtn);
+            instLL = view.findViewById(R.id.inst);
+            tmTxt = view.findViewById(R.id.tmTxt);
+            timer = view.findViewById(R.id.timer);
+            expire = view.findViewById(R.id.expire);
+            timer_LL = view.findViewById(R.id.timer_LL);
+            exdate = view.findViewById(R.id.exdate);
+            dur = view.findViewById(R.id.duration);
+            on_time = view.findViewById(R.id.start_tm);
+            CompQueLL = view.findViewById(R.id.CompQueLL);
+            compQue = view.findViewById(R.id.compQue);
+            dateLL = view.findViewById(R.id.dateLL);
+            ex_timeLL = view.findViewById(R.id.ex_timeLL);
+            durLL = view.findViewById(R.id.durLL);
+        }
+    }
+}

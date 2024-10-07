@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity.QuizInfo">
+    <include layout="@layout/toolbar"/>
+
+    <RelativeLayout
+        android:id="@+id/waitLL"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_above="@+id/progressBar"
+            android:text="Please Wait..."
+            android:textSize="@dimen/dimen_20dp"
+            android:layout_marginBottom="@dimen/dimen_20dp"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignore="HardcodedText" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar1">
+
+        <ImageView
+            android:id="@+id/edit"
+            android:layout_width="@dimen/dimen_20dp"
+            android:layout_height="@dimen/dimen_20dp"
+            app:srcCompat="@drawable/ic_edit"
+            android:layout_margin="@dimen/dimen_10dp"
+            android:layout_alignParentEnd="true"/>
+
+        <TextView
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:layout_marginStart="@dimen/dimen_10dp"
+            android:layout_marginEnd="@dimen/dimen_10dp"
+            android:id="@+id/txtroll"
+            android:layout_width="wrap_content"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:textSize="@dimen/dimen_18dp"
+            android:textColor="@color/colorPrimary"
+            android:text="Roll No. :"/>
+        <TextView
+            android:layout_marginStart="@dimen/dimen_10dp"
+            android:layout_marginEnd="@dimen/dimen_10dp"            android:id="@+id/roll"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:textSize="@dimen/dimen_16dp"
+            android:layout_toEndOf="@id/txtroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/txtEnroll"
+            android:layout_width="wrap_content"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/dimen_18dp"
+            android:layout_below="@+id/txtroll"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginStart="@dimen/dimen_10dp"
+            android:layout_marginEnd="@dimen/dimen_10dp"
+            android:text="Enrollment No. :"/>
+        <TextView
+            android:id="@+id/enroll"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/dimen_10dp"
+            android:layout_marginEnd="@dimen/dimen_10dp"
+            android:layout_marginTop="3dp"
+            android:textAlignment="center"
+            android:layout_below="@+id/roll"
+            android:textSize="@dimen/dimen_16dp"
+            android:layout_toEndOf="@+id/txtEnroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"/>
+
+        <View
+            android:layout_marginTop="@dimen/dimen_10dp"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/txtEnroll"
+            android:layout_alignParentEnd="true"
+            android:layout_height="@dimen/dimen_2dp"
+            android:background="@color/colorPrimaryDark"/>
+
+    </RelativeLayout>
+        <RelativeLayout
+        android:layout_below="@+id/info"
+            android:visibility="gone"
+        android:id="@+id/errorLL"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+
+        <Button
+            android:id="@+id/retry"
+            android:background="@color/colorPrimaryDark"
+            android:textColor="@color/WhiteSmoke"
+            android:text="check connection &amp; retry"
+            android:padding="@dimen/dimen_10dp"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignore="HardcodedText" />
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:visibility="gone"
+        android:layout_below="@+id/info"
+        android:id="@+id/QuizList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <TextView
+            android:visibility="gone"
+            android:layout_gravity="center"
+            android:textColor="@color/black"
+            android:padding="10dp"
+            android:background="@drawable/black_ovalshape"
+            android:id="@+id/couldnt_reach_internet_txt"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginBottom="100dp"
+            android:text="Can't reach the internet."/>
+
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/internetOffRL"
+            android:background="@color/bgBottomNavigation"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+
+            >
+            <TextView
+                android:layout_alignParentLeft="true"
+                android:textColor="@color/white"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_marginLeft="30dp"
+                android:text="No connection"/>
+
+
+            <TextView
+                android:id="@+id/try_again_txt"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="right"
+                android:textColor="@color/white"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:textStyle="bold"
+                android:layout_marginRight="30dp"
+                android:textAllCaps="true"
+                android:textSize="14dp"
+                android:text="TRY AGAIN"/>
+
+
+            <ProgressBar
+                android:visibility="gone"
+                android:layout_alignParentRight="true"
+                android:id="@+id/simpleProgressBar_internet"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="35dp"
+
+                />
+
+
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+    <!--internet code-->
+
+</RelativeLayout>

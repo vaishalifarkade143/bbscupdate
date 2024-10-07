@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/tools">
+
+    <androidx.cardview.widget.CardView
+        app:cardElevation="@dimen/dimen_10dp"
+        android:layout_marginBottom="@dimen/dimen_10dp"
+        android:layout_marginTop="@dimen/dimen_20dp"
+        android:layout_marginRight="@dimen/dimen_20dp"
+        android:layout_marginLeft="@dimen/dimen_20dp"
+        app:cardCornerRadius="@dimen/dimen_5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_margin="@dimen/dimen_20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/title"
+                android:textColor="@color/colorPrimaryDark"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/dimen_25dp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:textSize="@dimen/dimen_16dp"
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/desc"
+                android:layout_below="@+id/title"/>
+            <LinearLayout
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:id="@+id/inst"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/desc"
+                android:orientation="horizontal">
+                <TextView
+                    android:textSize="@dimen/dimen_16dp"
+                    android:textStyle="bold"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="Instruction : " />
+                <TextView
+                    android:textStyle="bold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/instruction"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:id="@+id/dateLL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/inst"
+                android:orientation="horizontal">
+                <TextView
+                    android:textSize="@dimen/dimen_16dp"
+                    android:textStyle="bold"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="Date : "/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/exdate"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:id="@+id/QueNo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/durLL"
+                android:orientation="horizontal">
+                <TextView
+                    android:textSize="@dimen/dimen_16dp"
+                    android:textStyle="bold"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="No. of Questions : "
+                    card_view:ignore="HardcodedText" />
+                <TextView
+                    android:layout_below="@id/inst"
+                    android:layout_toRightOf="@+id/marktxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/noQue"/>
+            </LinearLayout>
+            <LinearLayout
+                android:visibility="gone"
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:id="@+id/CompQueLL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/QueNo"
+                android:orientation="horizontal">
+                <TextView
+                    android:textSize="@dimen/dimen_16dp"
+                    android:textStyle="bold"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="Compulsory Questions : "
+                    card_view:ignore="HardcodedText" />
+                <TextView
+                    android:layout_below="@id/inst"
+                    android:layout_toRightOf="@+id/marktxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/compQue"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:id="@+id/marktxt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/CompQueLL"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:textStyle="bold"
+                    android:layout_width="150dp"
+                    android:textSize="@dimen/dimen_16dp"
+                    android:layout_below="@id/inst"
+                    android:layout_height="wrap_content"
+                    android:text="Total Marks : "/>
+                <TextView
+                    android:layout_below="@id/inst"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/marks"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/mPass"
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/marktxt"
+                android:orientation="horizontal">
+                <TextView
+                    android:textStyle="bold"
+                    android:textSize="@dimen/dimen_16dp"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="Minimum passing score : "/>
+                <TextView
+                    android:layout_below="@id/inst"
+                    android:layout_toRightOf="@+id/marktxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/passing"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/durLL"
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ex_timeLL"
+                android:orientation="horizontal">
+                <TextView
+                    android:textStyle="bold"
+                    android:textSize="@dimen/dimen_16dp"
+
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="Duration(hh:mm) : "/>
+                <TextView
+                    android:layout_below="@id/inst"
+                    android:layout_toRightOf="@+id/marktxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/duration"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ex_timeLL"
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/dateLL"
+                android:orientation="horizontal">
+                <TextView
+                    android:textSize="@dimen/dimen_16dp"
+                    android:textStyle="bold"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="Time : "/>
+                <TextView
+                    android:layout_below="@id/inst"
+                    android:layout_toRightOf="@+id/marktxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/start_tm"/>
+
+            </LinearLayout>
+
+
+            <Button
+                android:visibility="gone"
+                android:id="@+id/startBtn"
+                android:layout_marginTop="@dimen/dimen_20dp"
+                android:layout_below="@+id/mPass"
+                android:layout_centerInParent="true"
+                android:textColor="@color/WhiteSmoke"
+                android:background="@color/colorPrimaryDark"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_35dp"
+                android:text="Start Quiz"
+                />
+            <LinearLayout
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/timer_LL"
+                android:layout_marginTop="@dimen/dimen_10dp"
+                android:layout_marginBottom="@dimen/dimen_10dp"
+                android:layout_centerInParent="true"
+                android:gravity="center_horizontal"
+                android:layout_below="@+id/mPass">
+            <TextView
+                android:textColor="@color/colorPrimaryDark"
+                android:id="@+id/tmTxt"
+                android:textStyle="bold"
+                android:textSize="@dimen/dimen_18dp"
+                android:layout_toStartOf="@+id/timer"
+                android:text="Time left to start: "
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                card_view:drawableStartCompat="@drawable/ic_clock_24" />
+            <TextView
+                android:textSize="@dimen/dimen_18dp"
+                android:textColor="@color/colorPrimaryDark"
+                android:layout_centerInParent="true"
+                android:id="@+id/timer"
+                android:layout_below="@+id/mPass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <TextView
+                android:visibility="gone"
+                android:textSize="@dimen/dimen_18dp"
+                android:layout_alignParentEnd="true"
+                android:textColor="@color/Red"
+                android:id="@+id/expire"
+                android:text="Expired"
+                android:layout_below="@+id/mPass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>
