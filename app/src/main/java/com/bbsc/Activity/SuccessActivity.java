@@ -112,6 +112,7 @@ public class SuccessActivity extends AppCompatActivity implements NetworkStateRe
             actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
             actionBar.setTitle(R.string.app_name);
             toolbar.setTitleTextColor(Color.WHITE);
+
         }
 
         // Get data from Intent

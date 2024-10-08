@@ -534,6 +534,10 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 //        Log.d("ques", new Gson().toJson(ques));
         holder.title.setText(ques.get(holder.getAdapterPosition()).getExamTitle());
 
+
+
+
+
         //for description
         if(ques.get(holder.getAdapterPosition()).getDescription().isEmpty())
             holder.desc.setVisibility(View.GONE);
@@ -591,40 +595,51 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
         holder.expire.setVisibility(View.VISIBLE);
 
+//        int attemptLimit = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit());
+//        int currentAttempt = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt());
+//        Log.d("Attempt Data", "Att: " + currentAttempt + " AttemptLimit: " + attemptLimit);
+
         if(Integer.parseInt(ques.get(holder.getAdapterPosition()).getTimeLimitB())>0
                 && ques.get(holder.getAdapterPosition()).getEx_start_date() != null)
         {
             if (ques.get(holder.getAdapterPosition()).getEx_start_date().equals(currentDate))
             {
-// Check if the attempt limit is reached
-                int currentAttempts = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt());
+//                int attempts = Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt());
+//                int attemptLimit = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit());
+
+                //retake logic starts
+//                if (attempts < attemptLimit || attemptLimit > 10) {
+
+
                 int attemptLimit = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit());
-                boolean isRetakeAllowed = ques.get(holder.getAdapterPosition()).getRetake().equals("1");
-                if (isRetakeAllowed && (currentAttempts < attemptLimit || attemptLimit > 10))
-                {
-                    holder.startBtn.setVisibility(View.VISIBLE);
-                    holder.expire.setVisibility(View.GONE);
-                } else if (!isRetakeAllowed && currentAttempts <= 1)
-                {
-                    holder.startBtn.setVisibility(View.VISIBLE);
-                    holder.expire.setVisibility(View.GONE);
-//                if ((ques.get(holder.getAdapterPosition()).getRetake().equals("1") &&
-//                        (Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt())
+        int currentAttempt = Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt());
+//
+//        if (attemptLimit >= currentAttempt)
+
+                //modified logic
+
+                if ((ques.get(holder.getAdapterPosition()).getRetake().equals("1")
+                        && attemptLimit >= currentAttempt))
+                    //old logic
+//                        (Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt())
 //                                <= Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit())
 //                                || Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit()) >10)) ||
 //                        ques.get(holder.getAdapterPosition()).getRetake().equals("0")
-//                                && Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) <= 1)
-//                {
-//                    holder.startBtn.setVisibility(View.VISIBLE);
-                            Toast.makeText(context, "3*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
+//                                && Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt()) <= 1)
+                {
+                    holder.startBtn.setVisibility(View.VISIBLE);
+//                            Toast.makeText(context, "3*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
 
                     List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
                     if(quelistItems.size()<=0)
-                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "0");
+                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "0");
                     else {
+
                         if (ques.get(holder.getAdapterPosition()).getModified_date() != null && quelistItems.size() > 0) {
                             Date mode_date = null, ques_date = null;
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()); // Replace with your date format
+
+                            // Adjusted date format
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
                             try {
                                 // Parsing the modified date of the current question
@@ -652,7 +667,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
                                     // Example condition to trigger getList() call
                                     if (diffHours2 > 0 || diffMin2 > 0 || diffSec2 > 0) { // Adjust logic based on your requirement
-                                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "1");
+                                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "1");
                                     }
                                 } else {
                                     Log.e("DateError", "One of the parsed dates is null.");
@@ -661,10 +676,10 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                 e.printStackTrace();
                                 Log.e("DateError", "Failed to parse dates. Error: " + e.getMessage());
                             }
-                        }
-                        else {
+                        } else {
                             Log.e("DateError", "Modified date or question list is empty.");
                         }
+
                     }
                     holder.timer_LL.setVisibility(View.GONE);
                     holder.expire.setVisibility(View.GONE);
@@ -735,7 +750,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                         holder.startBtn.setVisibility(View.GONE);
                         holder.timer_LL.setVisibility(View.GONE);
                         holder.expire.setVisibility(View.VISIBLE);
-                        if(Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt())>1) {
+                        if(Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt())>1) {
                             holder.expire.setText("Submited.");
                             holder.expire.setTextColor(Color.parseColor("#FF008000"));
                         }
@@ -756,9 +771,9 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                 if (TimeUnit.MILLISECONDS.toHours(millis) <=24) {
                                     List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
                                     if(quelistItems.size()<=0)
-                                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "0");
+                                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "0");
                                     else{
-//added for date formate error app crash
+                                        //added for date formate error app crash
                                         if (ques.get(holder.getAdapterPosition()).getModified_date() != null && quelistItems.size() > 0) {
                                             Date mode_date = null, ques_date = null;
                                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()); // Replace with your date format
@@ -789,7 +804,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
                                                     // Example condition to trigger getList() call
                                                     if (diffHours2 > 0 || diffMin2 > 0 || diffSec2 > 0) { // Adjust logic based on your requirement
-                                                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "1");
+                                                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "1");
                                                     }
                                                 } else {
                                                     Log.e("DateError", "One of the parsed dates is null.");
@@ -815,35 +830,31 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                             }
 
                             public void onFinish() {
-
                                 holder.startBtn.setVisibility(View.VISIBLE);
 //                                        Toast.makeText(context, "1*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
                                 List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
                                 if(quelistItems.size()<=0)
-                                    getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "0");
+                                    getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "0");
                                 Log.d("set get Exam Id", "Exam Id"+ques.get(holder.getAdapterPosition()).getExamId());
 
                                 holder.timer_LL.setVisibility(View.GONE);
                                 holder.expire.setVisibility(View.GONE);
-                                countDownTimer = null;//set CountDownTimer to null
-//                                        holder.startBtn.performClick();
+                                countDownTimer = null;
                             }
                         }.start();
                     }
 
                 }
+
                 else {
                     holder.startBtn.setVisibility(View.GONE);
                     holder.timer_LL.setVisibility(View.GONE);
                     holder.expire.setVisibility(View.VISIBLE);
                     holder.expire.setText("Submited.");
                     holder.expire.setTextColor(Color.parseColor("#FF008000"));
-
-//                    holder.startBtn.setVisibility(View.GONE);
-//                    holder.expire.setVisibility(View.VISIBLE);
-//                    holder.expire.setText("Submitted.");
-//                    holder.expire.setTextColor(Color.parseColor("#FF008000"));
                 }
+                //retake logic close
+
             }
             else{
                 holder.startBtn.setVisibility(View.GONE);
@@ -851,19 +862,27 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                 holder.expire.setVisibility(View.GONE);
             }
         }
-
         else {
             holder.dateLL.setVisibility(View.GONE);
             holder.ex_timeLL.setVisibility(View.GONE);
             holder.durLL.setVisibility(View.GONE);
+
+            //added
+//            holder.startBtn.setVisibility(View.GONE);
+//            holder.timer_LL.setVisibility(View.GONE);
+//            holder.expire.setVisibility(View.VISIBLE);
+//            holder.expire.setText("Submited.");
+//            holder.expire.setTextColor(Color.parseColor("#FF008000"));
+
             if(ques.get(holder.getAdapterPosition()).getRetake().equals("1")) {
-                if (Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) <= Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit()) ||Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit())>10) {
+                if (Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt())
+                        <= Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit())) {
                     holder.startBtn.setVisibility(View.VISIBLE);
 //                    Toast.makeText(context, "2*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
 
                     List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
                     if(quelistItems.size()<=0)
-                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getAtt(), "0");
+                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "0");
 
 
                     holder.timer_LL.setVisibility(View.GONE);
@@ -937,15 +956,17 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                         i.putExtra("exam_min", ques.get(holder.getAdapterPosition()).getDurationM());
                         i.putExtra("showtime", ques.get(holder.getAdapterPosition()).getTimeLimitB());
                         i.putExtra("seeresult", ques.get(holder.getAdapterPosition()).getSeeResult());
-                        i.putExtra("att_no", ques.get(holder.getAdapterPosition()).getAtt());
-                        Log.d("sel exam attempt data",  " attempt data on quiz adapter: " + ques.get(holder.getAdapterPosition()).getAtt());
+                        i.putExtra("att_no", ques.get(holder.getAdapterPosition()).getExam_last_attempt());
+                        Log.d("sel exam attempt data",  " attempt data on quiz adapter: " + ques.get(holder.getAdapterPosition()).getExam_last_attempt());
 
                         context.startActivity(i);
                     } else {
                         toastMsg("Quiz time expired");
                         holder.startBtn.setVisibility(View.GONE);
                         holder.expire.setVisibility(View.VISIBLE);
-                        if (Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) > 1) {
+
+
+                        if (Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt()) > 1) {
                             holder.expire.setText("Submited.");
                             holder.expire.setTextColor(Color.parseColor("#FF008000"));
                         } else
@@ -955,6 +976,12 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
             }
         });
 
+//        int attemptLimit = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit());
+//        int currentAttempt = Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt());
+//
+//        if (attemptLimit >= currentAttempt) {
+//            holder.startBtn.setVisibility(View.VISIBLE);  // Show the button if the current attempt is within the limit
+//        }
 
     }
 

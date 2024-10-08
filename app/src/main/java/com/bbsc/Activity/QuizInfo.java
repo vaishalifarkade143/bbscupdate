@@ -84,12 +84,16 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
     public static Clock currentGnssTimeClock() {
         return null;
     }
-
+    //for auto refrsh
+    private Handler autoRefreshHandler;
+    private Runnable autoRefreshRunnable;
+    private static final long AUTO_REFRESH_INTERVAL = 10000;
     @SuppressLint("LongLogTag")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz_info);
+
         Quizlist = findViewById(R.id.QuizList);
         srno = findViewById(R.id.srno);
         Que = findViewById(R.id.Que);
@@ -206,7 +210,7 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
         });
 
 
-
+//refresh logic
         toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.refresh_menu) {
                 waitLL.setVisibility(View.VISIBLE);
@@ -216,6 +220,22 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
             }
             return false;
         });
+
+        //auto refresh
+        // Initialize the Handler
+        autoRefreshHandler = new Handler();
+
+        // Initialize the Runnable for auto-refresh
+        autoRefreshRunnable = new Runnable() {
+            @Override
+            public void run() {
+                getQuiz(); // Call the method to refresh quiz data
+                autoRefreshHandler.postDelayed(this, AUTO_REFRESH_INTERVAL); // Schedule the next refresh
+            }
+        };
+
+        // Start the auto-refresh when activity is created
+        autoRefreshHandler.post(autoRefreshRunnable);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -355,53 +375,6 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
         Quizlist.setAdapter(quizAdapter);
         quizAdapter.notifyDataSetChanged();
     }
-
-
-
-//    public void getQuiz() {
-//        dbManager.open();
-//        Api apiService = RetrofitClient.getApiService();
-//        Call<Quiz> quizCall = apiService.GetQuiz(String.valueOf(user.getId()));
-//        quizCall.enqueue(new Callback<Quiz>() {
-//            @Override
-//            public void onResponse(@NotNull Call<Quiz> call, @NotNull Response<Quiz> response) {
-//                if (response.body() != null) {
-//                    dbManager.deleteQuizList();
-//                    retry.setVisibility(View.GONE);
-//                    QueResponse = response.body().getData();
-//                    GetDetail.QuizList = QueResponse;
-//                    quizAdapter = new QuizAdapter(QuizInfo.this, QueResponse);
-//                    LinearLayoutManager llm = new LinearLayoutManager(QuizInfo.this);
-//                    llm.setOrientation(LinearLayoutManager.VERTICAL);
-//                    Quizlist.setLayoutManager(llm);
-//                    Quizlist.setAdapter(quizAdapter);
-//                    waitLL.setVisibility(View.GONE);
-//                    Quizlist.setVisibility(View.VISIBLE);
-//                    quizAdapter.notifyDataSetChanged();
-//
-//                    dbManager.insertQzList("QuizList", QueResponse);
-//                    dbManager.close();
-//                } else {
-//                    // Handle null response body
-//                    Log.e("QuizInfo", "Response body is null");
-//                    waitLL.setVisibility(View.GONE);
-//                    Quizlist.setVisibility(View.GONE);
-//                    errorLL.setVisibility(View.VISIBLE);
-//                    retry.setVisibility(View.VISIBLE);
-//                    dbManager.close();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(@NotNull Call<Quiz> call, @NotNull Throwable t) {
-//                waitLL.setVisibility(View.GONE);
-//                Quizlist.setVisibility(View.GONE);
-//                errorLL.setVisibility(View.VISIBLE);
-//                retry.setVisibility(View.VISIBLE);
-//                dbManager.close();
-//            }
-//        });
-//    }
 
 
     public void getQuiz() {

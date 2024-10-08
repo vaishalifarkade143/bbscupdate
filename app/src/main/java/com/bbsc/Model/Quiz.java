@@ -115,7 +115,9 @@ public class Quiz {
         @SerializedName("att")
         @Expose
         public String att;
-
+        @SerializedName("exam_last_attempt")
+        @Expose
+        public String exam_last_attempt;
 
 
         @SerializedName("ex_start_date")
@@ -149,6 +151,14 @@ public class Quiz {
 
         public String getCompulsory_que() {
             return compulsory_que;
+        }
+
+        public String getExam_last_attempt() {
+            return exam_last_attempt;
+        }
+
+        public void setExam_last_attempt(String exam_last_attempt) {
+            this.exam_last_attempt = exam_last_attempt;
         }
 
         public void setCompulsory_que(String compulsory_que) {
