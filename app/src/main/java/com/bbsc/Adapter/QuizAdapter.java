@@ -171,9 +171,35 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
         holder.passing.setText(ques.get(holder.getAdapterPosition()).getPassingScore()+"%");
         String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
-//        String date = GetDetail.getRealTime();
-        String date = GetDetail.getRealTime(); // Fetch the real time directly
-        Log.d("Time get real1: " , String.valueOf(date));
+
+
+
+
+//oldlogic app was crashe here
+//        String date = GetDetail.getRealTime(); // Fetch the real time directly
+//        Log.d("Time get real1: " , String.valueOf(date));
+
+
+        GetDetail.getRealTimeAsync(new retrofit2.Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String datetime = response.body();
+                    Log.d("Time get real1:", datetime);  // Log the received date or fallback
+                    // Use the datetime safely in your app
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.e("Time get real1:", "Failed to fetch real time", t);
+                // Handle failure (e.g., show error message)
+            }
+        });
+
+
+
+
 
         holder.expire.setVisibility(View.VISIBLE);
 
@@ -194,7 +220,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
 
                 int attemptLimit = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit());
-        int currentAttempt = Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt());
+                int currentAttempt = Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt());
 
                 //modified logic
 
@@ -557,12 +583,6 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
             }
         });
 
-//        int attemptLimit = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit());
-//        int currentAttempt = Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt());
-//
-//        if (attemptLimit >= currentAttempt) {
-//            holder.startBtn.setVisibility(View.VISIBLE);  // Show the button if the current attempt is within the limit
-//        }
 
     }
 
@@ -570,268 +590,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
 
 
-    //old code
 
-//    @SuppressLint({"SetTextI18n", "SimpleDateFormat"})
-//    @Override
-//    public void onBindViewHolder(@NonNull QuizAdapter.ViewHolder holder, int position) {
-//        // Get the current item in the list
-//        QueResponse = ques.get(position);
-//
-//        // Log the position and check if QueResponse is null
-//        if (QueResponse == null) {
-//            Log.e("QuizAdapter", "Item at position " + position + " is null");
-//            return; // Skip binding this view
-//        }
-//
-//        Log.d("QuizAdapter", "Binding view for position: " + position);
-//
-//        // Set exam title
-//        holder.title.setText(QueResponse.getExamTitle());
-//
-//        // Handle description
-//        if (QueResponse.getDescription() != null && !QueResponse.getDescription().isEmpty()) {
-//            holder.desc.setText(Html.fromHtml(Html.fromHtml(QueResponse.getDescription()).toString()));
-//            holder.desc.setVisibility(View.VISIBLE);
-//        } else {
-//            holder.desc.setVisibility(View.GONE);
-//        }
-//
-//        // Handle instructions
-//        if (QueResponse.getInstructions() != null && !QueResponse.getInstructions().isEmpty()) {
-//            holder.inst.setText(Html.fromHtml(Html.fromHtml(QueResponse.getInstructions()).toString()));
-//            holder.instLL.setVisibility(View.VISIBLE);
-//        } else {
-//            holder.instLL.setVisibility(View.GONE);
-//        }
-//
-//        String compulsoryQue = QueResponse.getCompulsory_que();
-//
-//// Check if the string is not null and not empty
-//        if (compulsoryQue != null && !compulsoryQue.isEmpty()) {
-//            try {
-//                int compulsoryQueValue = Integer.parseInt(compulsoryQue);
-//                if (compulsoryQueValue > 0) {
-//                    holder.CompQueLL.setVisibility(View.VISIBLE);
-//                    holder.compQue.setText(compulsoryQue);
-//                } else {
-//                    holder.CompQueLL.setVisibility(View.GONE);
-//                }
-//            } catch (NumberFormatException e) {
-//                // Handle the case where parsing fails
-//                holder.CompQueLL.setVisibility(View.GONE);
-//            }
-//        } else {
-//            holder.CompQueLL.setVisibility(View.GONE);
-//        }
-//
-//        // Format and set marks and dates
-//        holder.marks.setText(QueResponse.getTotalMarks());
-//        holder.exdate.setText(QueResponse.getEx_start_date());
-//
-//
-//        String dur_map = "min";
-//        int durationHours = 0, durationMinutes = 0;
-//        try {
-//            // Trim the values and handle possible null values
-//            String durationH = QueResponse.getDurationH() != null ? QueResponse.getDurationH().trim() : "0";
-//            String durationM = QueResponse.getDurationM() != null ? QueResponse.getDurationM().trim() : "0";
-//
-//            // Parse the trimmed values
-//            durationHours = Integer.parseInt(durationH);
-//            durationMinutes = Integer.parseInt(durationM);
-//
-//            // Check if durationHours > 0, then set the dur_map to "hr"
-//            if (durationHours > 0) dur_map = "hr";
-//        } catch (NumberFormatException e) {
-//            Log.e("QuizAdapter", "Error parsing duration values", e);
-//        }
-//
-//        DecimalFormat durFormat = new DecimalFormat("00");
-//        holder.dur.setText(durFormat.format(durationHours) + ":" + durFormat.format(durationMinutes) + " " + dur_map);
-//
-//        holder.on_time.setText(convert12(QueResponse.getEx_start_time()) + " - " + convert12(QueResponse.getEx_end_time()));
-//
-//        holder.ques.setText(QueResponse.getQcount());
-//        holder.passing.setText(QueResponse.getPassingScore() + "%");
-//
-//        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-//        String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
-//
-//        // Log the current date and time
-//        Log.d("QuizAdapter", "Current Date: " + currentDate);
-//        Log.d("QuizAdapter", "Current Time: " + currentTime);
-//
-//        // Check for null or empty exam start date
-//        if (QueResponse.getEx_start_date() == null || QueResponse.getEx_start_time() == null) {
-//            Log.e("QuizAdapter", "Exam start date or time is missing for position: " + position);
-//            return;
-//        }
-//
-//        // Date format used for parsing
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-//
-//        try {
-//            String startDateString = QueResponse.getEx_start_date() + " " + QueResponse.getEx_start_time();
-//            String endDateString = QueResponse.getEx_end_date() + " " + QueResponse.getEx_end_time();
-//
-//            Date startDate = sdf.parse(startDateString);
-//            Date endDate = sdf.parse(endDateString);
-//            Date currentDateTime = sdf.parse(currentDate + " " + currentTime);
-//
-//            if (startDate != null && endDate != null && currentDateTime != null) {
-//                long timeUntilStart = startDate.getTime() - currentDateTime.getTime();
-//                long timeUntilEnd = endDate.getTime() - currentDateTime.getTime();
-//
-//                if (timeUntilStart > 0) {
-//                    handleUpcomingQuiz(holder, timeUntilStart, timeUntilEnd, position);
-//                } else if (timeUntilEnd > 0) {
-//                    handleOngoingQuiz(holder, timeUntilEnd, position);
-//                } else {
-//                    handleExpiredQuiz(holder);
-//                }
-//            } else {
-//                Log.e("QuizAdapter", "Error parsing date or time for position: " + position);
-//
-//            }
-//        } catch (ParseException e) {
-//            Log.e("QuizAdapter", "Error parsing date/time strings", e);
-//            handleInvalidDates(holder);
-//        }
-//
-//
-//        holder.startBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                ConnectivityManager connectivityManager=(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-//                NetworkInfo networkInfo=connectivityManager.getActiveNetworkInfo();
-//                if (networkInfo ==null) {
-//                    toastMsg("Check internet connection!");
-//                }
-//                else{
-//                    Date dateObj3 = null, dateObj4 = null;
-//                    try {
-//                        dateObj3 = sdf.parse(ques.get(holder.getAdapterPosition()).getEx_end_date() + " " + ques.get(holder.getAdapterPosition()).getEx_end_time());
-//                        dateObj4 = sdf.parse(currentDate + " " + currentTime);
-//                        Log.d("dateObj3dateObj3", dateObj3 + "   " + dateObj4);
-//                    } catch (ParseException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                    DecimalFormat crunchifyFormatter2 = new DecimalFormat("###,###");
-//
-//                    // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
-//                    long diff2 = dateObj3.getTime() - dateObj4.getTime();
-//
-//                    int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
-//
-//                    int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
-//
-//                    int diffmin2 = (int) (diff2 / (60 * 1000));
-//
-//                    int diffsec2 = (int) (diff2 / (1000));
-//                    Log.d("diff22", diffhours2 + " :: " + diffsec2 + " :: " + diffmin2);
-//                    if (diffhours2 > 0 || diffmin2 > 0 || diffsec2 > 0) {
-//
-//
-//                        Log.d("selexam", String.valueOf(ques.get(holder.getAdapterPosition()).getExamId() + " position: " + holder.getAdapterPosition()));
-//                        Intent i = new Intent(context, MainActivity.class);
-//                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-//                        i.putExtra("exam_id", ques.get(holder.getAdapterPosition()).getExamId());
-//                        i.putExtra("exam_title", ques.get(holder.getAdapterPosition()).getExamTitle());
-//                        i.putExtra("st_date", ques.get(holder.getAdapterPosition()).getEx_start_date());
-//                        i.putExtra("st_time", ques.get(holder.getAdapterPosition()).getEx_start_time());
-//                        i.putExtra("end_date", ques.get(holder.getAdapterPosition()).getEx_end_date());
-//                        i.putExtra("end_time", ques.get(holder.getAdapterPosition()).getEx_end_time());
-//                        i.putExtra("exam_hr", ques.get(holder.getAdapterPosition()).getDurationH());
-//                        i.putExtra("exam_min", ques.get(holder.getAdapterPosition()).getDurationM());
-//                        i.putExtra("showtime", ques.get(holder.getAdapterPosition()).getTimeLimitB());
-//                        i.putExtra("seeresult", ques.get(holder.getAdapterPosition()).getSeeResult());
-//                        i.putExtra("att_no", ques.get(holder.getAdapterPosition()).getAtt());
-//                        Log.d("Attempt limit  is" , String.valueOf(ques.get(holder.getAdapterPosition()).getAttemptLimit()));
-//                        context.startActivity(i);
-//                    } else {
-//                        toastMsg("Quiz time expired");
-//                        holder.startBtn.setVisibility(View.GONE);
-//                        holder.expire.setVisibility(View.VISIBLE);
-//                        if (Integer.parseInt(ques.get(holder.getAdapterPosition()).getAtt()) > 1) {
-//                            holder.expire.setText("Submited.");
-//                            holder.expire.setTextColor(Color.parseColor("#FF008000"));
-//                        } else
-//                            holder.expire.setText("Expired.");
-//                    }
-//                }
-//            }
-//        });
-//
-//    }
-
-//
-//    private void handleUpcomingQuiz(@NonNull QuizAdapter.ViewHolder holder, long timeUntilStart, long timeUntilEnd, int position) {
-//        holder.startBtn.setVisibility(View.GONE);
-//        holder.timer_LL.setVisibility(View.VISIBLE);
-//        holder.expire.setVisibility(View.GONE);
-//
-//        countDownTimer = new CountDownTimer(timeUntilStart, 1000) {
-//            @SuppressLint("DefaultLocale")
-//            @Override
-//            public void onTick(long millisUntilFinished) {
-//                updateCountdown(holder.timer, millisUntilFinished);
-//            }
-//
-//            @Override
-//            public void onFinish() {
-//                holder.timer.setText("00:00:00");
-//                holder.startBtn.setVisibility(View.VISIBLE);
-//                holder.timer_LL.setVisibility(View.GONE);
-//
-////                holder.tmTxt.setVisibility(View.GONE);
-//
-//                holder.expire.setVisibility(View.GONE);
-//            }
-//        }.start();
-//    }
-
-//    private void handleOngoingQuiz(@NonNull QuizAdapter.ViewHolder holder, long timeUntilEnd, int position) {
-//        // Show the start button if the exam is ongoing
-//        holder.tmTxt.setVisibility(View.GONE); // Hide the timer text
-//        holder.startBtn.setVisibility(View.VISIBLE);
-//        holder.timer_LL.setVisibility(View.GONE);
-//        holder.expire.setVisibility(View.GONE);
-//
-//        // Set up the countdown timer until the end of the exam
-//        countDownTimer = new CountDownTimer(timeUntilEnd, 1000) {
-//            @SuppressLint("DefaultLocale")
-//            @Override
-//            public void onTick(long millisUntilFinished) {
-//                updateCountdown(holder.timer, millisUntilFinished);
-//            }
-//
-//            @Override
-//            public void onFinish() {
-//                holder.timer.setText("00:00:00");
-//                holder.startBtn.setVisibility(View.GONE);  // Hide the button once the exam has expired
-//                holder.timer_LL.setVisibility(View.GONE);
-//                holder.expire.setVisibility(View.VISIBLE);
-//                holder.expire.setText("Expired");
-//            }
-//        }.start();
-//    }
-//
-//
-
-//    private void handleExpiredQuiz(@NonNull QuizAdapter.ViewHolder holder) {
-//        holder.startBtn.setVisibility(View.GONE);
-//        holder.timer_LL.setVisibility(View.GONE);
-//        holder.expire.setVisibility(View.VISIBLE);
-//        holder.expire.setText("Expired");
-//    }
-//
-//    private void handleInvalidDates(@NonNull QuizAdapter.ViewHolder holder) {
-//        holder.startBtn.setVisibility(View.GONE);
-//        holder.timer_LL.setVisibility(View.GONE);
-//        holder.expire.setVisibility(View.GONE);
-//    }
 
     private void updateCountdown(TextView timerView, long millisUntilFinished) {
         int hours = (int) (millisUntilFinished / (1000 * 60 * 60));
@@ -841,41 +600,6 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
         int seconds = (int) (millisUntilFinished / 1000);
         timerView.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
     }
-
-
-
-//    private void handleStartButtonClick(@NonNull QuizAdapter.ViewHolder holder, int position, String currentDate, String currentTime) {
-//        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-//        if (networkInfo == null) {
-//            toastMsg("Check internet connection!");
-//            return;
-//        }
-//
-//        // Similar date parsing logic as in onBindViewHolder() method
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-//            Date endDate = sdf.parse(QueResponse.getEx_end_date() + " " + QueResponse.getEx_end_time());
-//            Date currentDateTime = sdf.parse(currentDate + " " + currentTime);
-//
-//            if (endDate != null && currentDateTime != null) {
-//                long timeDifference = endDate.getTime() - currentDateTime.getTime();
-//                if (timeDifference <= 0) {
-//                    toastMsg("Quiz already expired!");
-//                } else {
-//                    Intent intent = new Intent(context, MainActivity.class);
-//                    Log.d( "start click: ","ijdsioojfiosdj");
-//                    intent.putExtra("exam_id", ques.get(holder.getAdapterPosition()).getExamId());
-//                    context.startActivity(intent);
-//                }
-//            }
-//        } catch (ParseException e) {
-//            Log.e("QuizAdapter", "Error parsing end date or current time", e);
-//            toastMsg("Error starting quiz!");
-//        }
-//    }
-//
-//
 
 
     public  void  toastMsg(String msg){

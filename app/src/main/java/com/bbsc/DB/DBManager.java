@@ -81,7 +81,8 @@ public class DBManager {
             try {
                 long rowInserted = database.insert("Questions", null, contentValue);
                 if(rowInserted != -1)
-                    Toast.makeText(context, "New row added, row id: " + rowInserted, Toast.LENGTH_SHORT).show();
+                    Log.d("got round", "insertQuesList call ");
+//                    Toast.makeText(context, "New row added, row id: " + rowInserted, Toast.LENGTH_SHORT).show();
                 else
                     Toast.makeText(context, "Something wrong", Toast.LENGTH_SHORT).show();
             }catch (Exception e){

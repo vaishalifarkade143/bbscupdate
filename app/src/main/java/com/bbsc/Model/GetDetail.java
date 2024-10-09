@@ -275,35 +275,70 @@ public class GetDetail {
     };
     private static String currdatetime;
 
-    public static String getRealTime() {
-        final String[] datetime = new String[1]; // Store the datetime
+//    public static String getRealTime() {
+//        final String[] datetime = new String[1]; // Store the datetime
+//
+//        String fallbackDate = "1970-01-01T00:00:00";
+//        // Synchronous call approach (use carefully, generally not recommended)
+//        try {
+//            Api apiService = RetrofitClient.getApiService2();
+//            Call<GlobleTime> userResponse = apiService.getRealTime("http://worldtimeapi.org/api/timezone/Asia/Kolkata");
+//            Response<GlobleTime> response = userResponse.execute(); // Synchronous call
+//
+//            if (response.isSuccessful() && response.body() != null) {
+//                GlobleTime data = response.body();
+//                // Check if datetime is not null
+//                if (data.getDatetime() != null) {
+//                    datetime[0] = data.getDatetime(); // Assign to array
+//                    GetDetail.currdatetime = datetime[0]; // Update current datetime
+//                } else {
+//                    datetime[0] = null; // or a default value
+//                }
+//            } else {
+//                datetime[0] = null; // Handle unsuccessful response
+//            }
+//        } catch (IOException e) {
+//            Log.e("GetDetail", "Error fetching real time", e);
+//            e.printStackTrace();
+//            datetime[0] = null; // Handle exceptions
+//        }
+//
+//        // Use the fallbackDate if datetime[0] is null
+//        String date = datetime[0] != null ? datetime[0] : fallbackDate;
+//
+////        return datetime[0]; // Return the datetime or null
+//        return date;
+//    }
 
-        // Synchronous call approach (use carefully, generally not recommended)
-        try {
-            Api apiService = RetrofitClient.getApiService2();
-            Call<GlobleTime> userResponse = apiService.getRealTime("http://worldtimeapi.org/api/timezone/Asia/Kolkata");
-            Response<GlobleTime> response = userResponse.execute(); // Synchronous call
 
-            if (response.isSuccessful() && response.body() != null) {
-                GlobleTime data = response.body();
-                // Check if datetime is not null
-                if (data.getDatetime() != null) {
-                    datetime[0] = data.getDatetime(); // Assign to array
-                    GetDetail.currdatetime = datetime[0]; // Update current datetime
+
+    //oldlogic app was crashe here
+    public static void getRealTimeAsync(final retrofit2.Callback<String> callback) {
+        String fallbackDate = "1970-01-01T00:00:00"; // Fallback date in case of failure
+
+        Api apiService = RetrofitClient.getApiService2();
+        Call<GlobleTime> userResponse = apiService.getRealTime("http://worldtimeapi.org/api/timezone/Asia/Kolkata");
+
+        userResponse.enqueue(new retrofit2.Callback<GlobleTime>() {
+            @Override
+            public void onResponse(Call<GlobleTime> call, Response<GlobleTime> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    GlobleTime data = response.body();
+                    String date = data.getDatetime() != null ? data.getDatetime() : fallbackDate;
+                    GetDetail.currdatetime = date;  // Update the current datetime with either real or fallback
+                    callback.onResponse(null, Response.success(date));  // Pass the date as a string
                 } else {
-                    datetime[0] = null; // or a default value
+                    callback.onResponse(null, Response.success(fallbackDate));  // Pass fallback date as a string
                 }
-            } else {
-                datetime[0] = null; // Handle unsuccessful response
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            datetime[0] = null; // Handle exceptions
-        }
 
-        return datetime[0]; // Return the datetime or null
+            @Override
+            public void onFailure(Call<GlobleTime> call, Throwable t) {
+                Log.e("GetDetail", "Error fetching real time", t);
+                callback.onFailure(null, t);  // Pass failure
+            }
+        });
     }
-
 
 
 
