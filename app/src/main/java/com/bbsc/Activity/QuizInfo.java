@@ -86,9 +86,9 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
     }
 
     //for auto refrsh
-//    private Handler autoRefreshHandler;
-//    private Runnable autoRefreshRunnable;
-//    private static final long AUTO_REFRESH_INTERVAL = 10000;
+    private Handler autoRefreshHandler;
+    private Runnable autoRefreshRunnable;
+    private static final long AUTO_REFRESH_INTERVAL = 10000;
 
     @SuppressLint("LongLogTag")
     @Override
@@ -219,26 +219,26 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
                 Quizlist.setVisibility(View.GONE);
                 errorLL.setVisibility(View.GONE);
                 getQuiz();
+                return true;
             }
             return false;
         });
 
-        //auto refresh
-        // Initialize the Handler
-//        autoRefreshHandler = new Handler();
-//
-//        // Initialize the Runnable for auto-refresh
-//        autoRefreshRunnable = new Runnable() {
-//            @Override
-//            public void run() {
-//                getQuiz(); // Call the method to refresh quiz data
-//                autoRefreshHandler.postDelayed(this, AUTO_REFRESH_INTERVAL); // Schedule the next refresh
-//            }
-//        };
-//
-//        // Start the auto-refresh when activity is created
-//        autoRefreshHandler.post(autoRefreshRunnable);
+
+        // Initialize auto-refresh functionality
+        autoRefreshHandler = new Handler();
+        autoRefreshRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isNetworkAvailable()) { // Check if network is available
+                    getQuiz(); // Call the method to refresh quiz data
+                }
+                autoRefreshHandler.postDelayed(this, AUTO_REFRESH_INTERVAL); // Schedule the next refresh
+            }
+        };
+        autoRefreshHandler.post(autoRefreshRunnable); // Start the auto-refresh when the activity is created
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -296,9 +296,6 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
                 builder.show();
             }
             else{
-
-
-
                 Api apiService = RetrofitClient.getApiService();
                 Call<userRoll> userResponse = apiService.addRollno(user.getId(), txt_roll_no, txt_enrollment_no);
                 userResponse.enqueue(new Callback<userRoll>() {
@@ -331,9 +328,6 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
                         Log.e("QuizInfo", "Failed to get response", t);
                     }
                 });
-
-
-
             }
             });
 

@@ -175,6 +175,26 @@ public class SuccessActivity extends AppCompatActivity implements NetworkStateRe
         overridePendingTransition(0, 0);
     }
 
+
+//    @Override
+//    public void onBackPressed() {
+//        Intent returnIntent = new Intent();
+//        boolean result = true; // Assuming you want to send back a result
+//        returnIntent.putExtra("result", result);
+//        setResult(RESULT_OK, returnIntent);
+//
+//        // Start QuizInfo with a refresh flag
+//        Intent refreshIntent = new Intent(SuccessActivity.this, QuizInfo.class);
+//        refreshIntent.putExtra("refresh", "refresh");
+//        refreshIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP); // Clear the back stack
+//        startActivity(refreshIntent);
+//
+//        // Finish the current activity
+//        finish();
+//        overridePendingTransition(0, 0);
+//    }
+
+
     private void quiz_submit() {
         waitLL.setVisibility(View.VISIBLE);
         resultLL.setVisibility(View.GONE);
