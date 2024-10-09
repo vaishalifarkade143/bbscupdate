@@ -84,10 +84,12 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
     public static Clock currentGnssTimeClock() {
         return null;
     }
+
     //for auto refrsh
-    private Handler autoRefreshHandler;
-    private Runnable autoRefreshRunnable;
-    private static final long AUTO_REFRESH_INTERVAL = 10000;
+//    private Handler autoRefreshHandler;
+//    private Runnable autoRefreshRunnable;
+//    private static final long AUTO_REFRESH_INTERVAL = 10000;
+
     @SuppressLint("LongLogTag")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -223,19 +225,19 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
 
         //auto refresh
         // Initialize the Handler
-        autoRefreshHandler = new Handler();
-
-        // Initialize the Runnable for auto-refresh
-        autoRefreshRunnable = new Runnable() {
-            @Override
-            public void run() {
-                getQuiz(); // Call the method to refresh quiz data
-                autoRefreshHandler.postDelayed(this, AUTO_REFRESH_INTERVAL); // Schedule the next refresh
-            }
-        };
-
-        // Start the auto-refresh when activity is created
-        autoRefreshHandler.post(autoRefreshRunnable);
+//        autoRefreshHandler = new Handler();
+//
+//        // Initialize the Runnable for auto-refresh
+//        autoRefreshRunnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                getQuiz(); // Call the method to refresh quiz data
+//                autoRefreshHandler.postDelayed(this, AUTO_REFRESH_INTERVAL); // Schedule the next refresh
+//            }
+//        };
+//
+//        // Start the auto-refresh when activity is created
+//        autoRefreshHandler.post(autoRefreshRunnable);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -408,7 +410,6 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
                     waitLL.setVisibility(View.GONE);
                     Quizlist.setVisibility(View.VISIBLE);
                     quizAdapter.notifyDataSetChanged();
-
                     dbManager.insertQzList("QuizList", QueResponse);
                     dbManager.close();
                 } else {
