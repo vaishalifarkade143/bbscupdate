@@ -8,6 +8,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import android.util.Log;
+
+import java.util.concurrent.TimeUnit;
+
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
@@ -26,6 +29,9 @@ public class RetrofitClient {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY); // or BASIC for just URL
 
         return new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS) // Increase the connection timeout
+                .readTimeout(30, TimeUnit.SECONDS)    // Increase the read timeout
+                .writeTimeout(30, TimeUnit.SECONDS)   // Increase the write timeout
                 .addInterceptor(loggingInterceptor)
                 .build();
     }
@@ -44,7 +50,9 @@ public class RetrofitClient {
     }
 
     public static Api getApiService() {
-        return getRetrofitInstance().create(Api.class);
+
+        return getRetrofitInstance()
+                .create(Api.class);
     }
 
     // Example for another API client, if needed
