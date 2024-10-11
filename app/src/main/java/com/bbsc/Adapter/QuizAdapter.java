@@ -176,26 +176,26 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
 
 //oldlogic app was crashe here
-//        String date = GetDetail.getRealTime(); // Fetch the real time directly
-//        Log.d("Time get real1: " , String.valueOf(date));
+        String date = GetDetail.getRealTime(); // Fetch the real time directly
+        Log.d("Time get real1: " , String.valueOf(date));
 
 
-        GetDetail.getRealTimeAsync(new retrofit2.Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    String datetime = response.body();
-                    Log.d("Time get real1:", datetime);  // Log the received date or fallback
-                    // Use the datetime safely in your app
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.e("Time get real1:", "Failed to fetch real time", t);
-                // Handle failure (e.g., show error message)
-            }
-        });
+//        GetDetail.getRealTimeAsync(new retrofit2.Callback<String>() {
+//            @Override
+//            public void onResponse(Call<String> call, Response<String> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    String datetime = response.body();
+//                    Log.d("Time get real1:", datetime);  // Log the received date or fallback
+//                    // Use the datetime safely in your app
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<String> call, Throwable t) {
+//                Log.e("Time get real1:", "Failed to fetch real time", t);
+//                // Handle failure (e.g., show error message)
+//            }
+//        });
 
 
 
