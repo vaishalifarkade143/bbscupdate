@@ -445,17 +445,20 @@ public class SignInWithEmail extends AppCompatActivity implements View.OnClickLi
 
 Log.d("LoginResponse333", new Gson().toJson(loginResponse));
                     if (response.isSuccessful()) {
-
-                        if (loginResponse.equals("null")) {
+                        if(loginResponse == null){
                             toastMsg("Invalid credential! Enter valid email & password.");
                             buttonSignIn.setVisibility(View.VISIBLE);
-                        } else if (loginResponse.isError()) {
+                        }else if (loginResponse != null && loginResponse.equals("null")) {
+                            toastMsg("Invalid credential! Enter valid email & password.");
+                            buttonSignIn.setVisibility(View.VISIBLE);
+                        } else if (loginResponse != null && loginResponse.isError()) {
                             toastMsg(loginResponse.getMessage());
                             buttonSignIn.setVisibility(View.VISIBLE);
                         } else {
 
                             SharedPrefManager.getInstance(SignInWithEmail.this).saveUser(loginResponse.getUser());
                             System.out.println(">>>>loginResponse>>>>>" + loginResponse.getUser().getEntroll());
+
 
                             Intent intent = new Intent(SignInWithEmail.this, SuccessLoginActivity.class);
                             intent.putExtra("msg", "");

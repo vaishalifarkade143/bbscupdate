@@ -292,6 +292,16 @@ public class SuccessActivity extends AppCompatActivity implements NetworkStateRe
                     Log.e("Submit Error", "Response not successful: " + response.code());
                     Toast.makeText(SuccessActivity.this, "Failed to submit. Server error.", Toast.LENGTH_SHORT).show();
                     errorLL.setVisibility(View.VISIBLE);
+
+                    Intent mainActivityIntent = new Intent(SuccessActivity.this, MainActivity.class);
+                    mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear the stack
+                    startActivity(mainActivityIntent); // Start MainActivity
+                    finish(); // Finish SecondActivity
+
+
+
+
+
                 }
             }
 

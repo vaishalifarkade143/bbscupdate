@@ -158,7 +158,12 @@ public class Quiz {
         }
 
         public void setExam_last_attempt(String exam_last_attempt) {
-            this.exam_last_attempt = exam_last_attempt;
+            if(exam_last_attempt.isEmpty()){
+                this.exam_last_attempt = "0";
+            }else{
+                this.exam_last_attempt = exam_last_attempt;
+            }
+
         }
 
         public void setCompulsory_que(String compulsory_que) {

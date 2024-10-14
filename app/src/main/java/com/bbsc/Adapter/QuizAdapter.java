@@ -220,7 +220,8 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
 
                 int attemptLimit = Integer.parseInt(ques.get(holder.getAdapterPosition()).getAttemptLimit());
-                int currentAttempt = Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt());
+                String LastAttempt  = ques.get(holder.getAdapterPosition()).getExam_last_attempt();
+                int currentAttempt = (LastAttempt != null) ? Integer.parseInt(LastAttempt) : 0;
 
                 //modified logic
 
@@ -375,14 +376,32 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
                                 holder.tmTxt.setText("Time left to start: ");
                                 if (TimeUnit.MILLISECONDS.toHours(millis) <=24) {
-                                    List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
-                                    if(quelistItems.size()<=0)
-                                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "0");
-                                    else{
+
+                                    int position = holder.getAdapterPosition();
+                                    if (position != RecyclerView.NO_POSITION) {
+                                        List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+                                        // Proceed with your logic here
+                                    } else {
+                                        // Handle the case when the position is invalid
+
+                                        toastMsg("Invalid adapter position:"+position);
+                                    }
+
+                                    if(quelistItems.size() <= 0) {
+                                        int adapterPosition = holder.getAdapterPosition();
+                                        toastMsg("Adapter position:"+adapterPosition);
+                                        if(ques.size()>0){
+                                            getList(ques.get(adapterPosition).getExamId(), ques.get(adapterPosition).getExam_last_attempt(), "0");
+                                        }
+
+                                    }else{
                                         //added for date formate error app crash
-                                        if (ques.get(holder.getAdapterPosition()).getModified_date() != null && quelistItems.size() > 0) {
+                                        int adapterPosition = holder.getAdapterPosition();
+                                        if (ques.size() > 0 && quelistItems.size() > 0) {
+
+                                            /*ques.get(adapterPosition).getModified_date() != null*/
                                             Date mode_date = null, ques_date = null;
-                                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()); // Replace with your date format
+                                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()); // Replace with your date format
 
                                             try {
                                                 // Parsing the modified date of the current question
