@@ -172,6 +172,7 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
         simpleProgressBar  = (ProgressBar) findViewById(R.id.simpleProgressBar_internet);
         simpleProgressBar.getIndeterminateDrawable().setColorFilter(Color.parseColor("#EC5252"), PorterDuff.Mode.MULTIPLY);
         listItems = dbManager.getAllQuizzes();
+        dbManager.close();
         boolean userLogin = SharedPrefManager.getInstance(this).isLoggedIn();
 
         if(userLogin) {

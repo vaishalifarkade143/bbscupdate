@@ -279,6 +279,8 @@ public class SuccessActivity extends AppCompatActivity implements NetworkStateRe
                             dbManager.updateQuizList(examId, String.valueOf(newAttempt)); // Pass the new attempt number as a String
                             Log.d("New Attempt Number", "Attempt number updated to: " + newAttempt);
 
+                            dbManager.close();
+
                         } catch (JSONException e) {
                             Log.e("Update Error", e.getMessage());
                         }

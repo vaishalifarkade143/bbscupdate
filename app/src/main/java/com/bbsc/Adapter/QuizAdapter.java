@@ -238,6 +238,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 //                            Toast.makeText(context, "3*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
 
                     List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+                    dbManager.close();
                     if(quelistItems.size()<=0)
                         getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "0");
                     else {
@@ -256,7 +257,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                 if (quelistItems.get(0).getModified_date() != null) {
                                     ques_date = sdf.parse(quelistItems.get(0).getModified_date());
                                 } else {
-                                    Log.e("DateError", "Modified date for the question list item is null.");
+                                    Log.e("DateError", "Modified date for the question list item is null. 259");
                                     return; // Exit if ques_date is null
                                 }
 
@@ -375,7 +376,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                             public void onTick(long millisUntilFinished) {
                                 int holderPosition = holder.getAdapterPosition();
                                 long millis = millisUntilFinished;
-                                Log.d("hr: ", TimeUnit.MILLISECONDS.toHours(millis) + " min: " + TimeUnit.MILLISECONDS.toMinutes(millis));
+                                //Log.d("hr: ", TimeUnit.MILLISECONDS.toHours(millis) + " min: " + TimeUnit.MILLISECONDS.toMinutes(millis));
 
                                 holder.tmTxt.setText("Time left to start: ");
                                 if (TimeUnit.MILLISECONDS.toHours(millis) <=24) {
@@ -384,6 +385,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                     if (holderPosition != RecyclerView.NO_POSITION) {
                                         List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holderPosition).getExamId());
                                         // Proceed with your logic here
+                                        dbManager.close();
                                     } else {
                                         // Handle the case when the position is invalid
 
@@ -408,7 +410,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
                                             try {
 
-                                                Log.e("DateError", "Modified date for the question list item is null.");
+                                                Log.e("DateError", "Modified date for the question list item is null. 411");
                                                 if(ques.size()>0 && holderPosition >0) {
 
                                                     // Parsing the modified date of the current question
@@ -418,7 +420,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                                 if (quelistItems.get(0).getModified_date() != null) {
                                                     ques_date = sdf.parse(quelistItems.get(0).getModified_date());
                                                 } else {
-                                                    Log.e("DateError", "Modified date for the question list item is null.");
+                                                    Log.e("DateError", "Modified date for the question list item is null. 421");
                                                     return; // Exit if ques_date is null
                                                 }
 
@@ -464,14 +466,22 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                             public void onFinish() {
                                 holder.startBtn.setVisibility(View.VISIBLE);
 //                                        Toast.makeText(context, "1*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
-                                List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
-                                if(quelistItems.size()<=0)
-                                    getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "0");
-                                Log.d("set get Exam Id", "Exam Id"+ques.get(holder.getAdapterPosition()).getExamId());
 
-                                holder.timer_LL.setVisibility(View.GONE);
-                                holder.expire.setVisibility(View.GONE);
-                                countDownTimer = null;
+                                List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+                                if(quelistItems.size()<=0) {
+                                    int holderPosition = holder.getAdapterPosition();
+                                    if(holderPosition >= 0){
+                                        getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "0");
+                                        Log.d("set get Exam Id", "Exam Id" + ques.get(holderPosition).getExamId());
+
+                                        holder.timer_LL.setVisibility(View.GONE);
+                                        holder.expire.setVisibility(View.GONE);
+                                        countDownTimer = null;
+
+                                    }
+
+                                }
+                                dbManager.close();
                             }
                         }.start();
                     }
@@ -520,6 +530,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
                     holder.timer_LL.setVisibility(View.GONE);
                     holder.expire.setVisibility(View.GONE);
+                    dbManager.close();
                 }
                 else{
                     holder.startBtn.setVisibility(View.GONE);
@@ -529,6 +540,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                     holder.expire.setTextColor(Color.parseColor("#FF008000"));
 
                 }
+
             }
             else{
                 holder.startBtn.setVisibility(View.GONE);
@@ -551,6 +563,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                     toastMsg("Check internet connection!");
                 }
                 else{
+
                     Date dateObj3 = null, dateObj4 = null;
                     try {
                         dateObj3 = sdf.parse(ques.get(holder.getAdapterPosition()).getEx_end_date() + " " + ques.get(holder.getAdapterPosition()).getEx_end_time());
