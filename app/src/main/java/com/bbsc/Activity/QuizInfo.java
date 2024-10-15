@@ -380,7 +380,7 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
         quizCall.enqueue(new Callback<Quiz>() {
             @Override
             public void onResponse(@NotNull Call<Quiz> call, @NotNull Response<Quiz> response) {
-                if (response.body() != null) {
+                if (response.body().getData() != null) {
                     dbManager.deleteQuizList();
                     retry.setVisibility(View.GONE);
                     QueResponse = response.body().getData();

@@ -371,32 +371,33 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                         countDownTimer = new CountDownTimer(noOfMinutes, 1000) {
                             @SuppressLint("DefaultLocale")
                             public void onTick(long millisUntilFinished) {
+                                int holderPosition = holder.getAdapterPosition();
                                 long millis = millisUntilFinished;
                                 Log.d("hr: ", TimeUnit.MILLISECONDS.toHours(millis) + " min: " + TimeUnit.MILLISECONDS.toMinutes(millis));
 
                                 holder.tmTxt.setText("Time left to start: ");
                                 if (TimeUnit.MILLISECONDS.toHours(millis) <=24) {
 
-                                    int position = holder.getAdapterPosition();
-                                    if (position != RecyclerView.NO_POSITION) {
-                                        List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+
+                                    if (holderPosition != RecyclerView.NO_POSITION) {
+                                        List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holderPosition).getExamId());
                                         // Proceed with your logic here
                                     } else {
                                         // Handle the case when the position is invalid
 
-                                        toastMsg("Invalid adapter position:"+position);
+                                        toastMsg("Invalid adapter position:"+holderPosition);
                                     }
 
                                     if(quelistItems.size() <= 0) {
-                                        int adapterPosition = holder.getAdapterPosition();
-                                        toastMsg("Adapter position:"+adapterPosition);
-                                        if(ques.size()>0){
-                                            getList(ques.get(adapterPosition).getExamId(), ques.get(adapterPosition).getExam_last_attempt(), "0");
+
+                                        toastMsg("Adapter position:"+holderPosition);
+                                        if(ques.size()<=0){
+                                            getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "0");
                                         }
 
                                     }else{
                                         //added for date formate error app crash
-                                        int adapterPosition = holder.getAdapterPosition();
+
                                         if (ques.size() > 0 && quelistItems.size() > 0) {
 
                                             /*ques.get(adapterPosition).getModified_date() != null*/
@@ -404,9 +405,13 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()); // Replace with your date format
 
                                             try {
-                                                // Parsing the modified date of the current question
-                                                mode_date = sdf.parse(ques.get(holder.getAdapterPosition()).getModified_date());
 
+                                                Log.e("DateError", "Modified date for the question list item is null.");
+                                                if(ques.size()>0 && holderPosition >0) {
+
+                                                    // Parsing the modified date of the current question
+                                                    mode_date = sdf.parse(ques.get(holderPosition).getModified_date());
+                                                }
                                                 // Check that quelistItems has elements and get the modified date safely
                                                 if (quelistItems.get(0).getModified_date() != null) {
                                                     ques_date = sdf.parse(quelistItems.get(0).getModified_date());
@@ -429,7 +434,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
                                                     // Example condition to trigger getList() call
                                                     if (diffHours2 > 0 || diffMin2 > 0 || diffSec2 > 0) { // Adjust logic based on your requirement
-                                                        getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "1");
+                                                        getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "1");
                                                     }
                                                 } else {
                                                     Log.e("DateError", "One of the parsed dates is null.");
@@ -447,7 +452,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
                                     holder.timer.setTextColor(Color.parseColor("#FFF55625"));
 
-                                    Log.d("exam_id onTick", ques.get(holder.getAdapterPosition()).getExamId());
+                                    //Log.d("exam_id onTick", ques.get(holderPosition).getExamId());
                                 }
                                 hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis), TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
                                 holder.timer.setText(hms);//set
