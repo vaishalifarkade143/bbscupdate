@@ -22,7 +22,7 @@ package com.bbsc.Adapter;
         import android.view.ViewGroup;
         import android.widget.Button;
         import android.widget.LinearLayout;
-        import android.widget.RadioGroup;
+        //import android.widget.RadioGroup;
         import android.widget.TextView;
         import android.widget.Toast;
 
@@ -32,7 +32,7 @@ package com.bbsc.Adapter;
         import androidx.recyclerview.widget.RecyclerView;
 
         import com.bbsc.Activity.MainActivity;
-        import com.bbsc.Activity.QuizListActivity;
+        //import com.bbsc.Activity.QuizListActivity;
         import com.bbsc.Api.Api;
         import com.bbsc.Api.RetrofitClient;
         import com.bbsc.DB.DBManager;
@@ -50,12 +50,12 @@ package com.bbsc.Adapter;
         import java.io.FileOutputStream;
         import java.io.IOException;
         import java.net.URL;
-        import java.text.DateFormat;
+        //import java.text.DateFormat;
         import java.text.DecimalFormat;
         import java.text.ParseException;
         import java.text.SimpleDateFormat;
-        import java.time.ZonedDateTime;
-        import java.util.Calendar;
+        //import java.time.ZonedDateTime;
+        //import java.util.Calendar;
         import java.util.Date;
         import java.util.List;
         import java.util.Locale;
@@ -75,9 +75,9 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
     Context context;
     List<Quiz.Qinfo> ques;
-    RadioGroup.LayoutParams rprms;
-    Calendar calendar;
-    DateFormat formatter ;
+    //RadioGroup.LayoutParams rprms;
+    //Calendar calendar;
+    //DateFormat formatter ;
     CountDownTimer countDownTimer = null;
     User user;
     List<Quiz.Qinfo> listItems;
@@ -337,12 +337,12 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                     System.out.println(dateObj1);
                     System.out.println(dateObj2 + "\n");
 
-                    DecimalFormat crunchifyFormatter2 = new DecimalFormat("###,###");
+                    //DecimalFormat crunchifyFormatter2 = new DecimalFormat("###,###");
 
                     // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
                     long diff2 = dateObj3.getTime() - dateObj4.getTime();
 
-                    int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+                    //int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
 
                     int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
 
@@ -357,12 +357,14 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                         holder.startBtn.setVisibility(View.GONE);
                         holder.timer_LL.setVisibility(View.GONE);
                         holder.expire.setVisibility(View.VISIBLE);
-                        if(Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt())>1) {
+                        String NumberOfAttemps = ques.get(holder.getAdapterPosition()).getExam_last_attempt();
+                        if(NumberOfAttemps != null && Integer.parseInt(NumberOfAttemps)>1) {
                             holder.expire.setText("Submited.");
                             holder.expire.setTextColor(Color.parseColor("#FF008000"));
                         }
-                        else
+                        else {
                             holder.expire.setText("Expired");
+                        }
                     } else {
                         holder.startBtn.setVisibility(View.GONE);
                         holder.timer_LL.setVisibility(View.VISIBLE);
@@ -391,7 +393,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                     if(quelistItems.size() <= 0) {
 
                                         toastMsg("Adapter position:"+holderPosition);
-                                        if(ques.size()<=0){
+                                        if(ques.size() >= 0){
                                             getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "0");
                                         }
 
