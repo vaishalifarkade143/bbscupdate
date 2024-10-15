@@ -369,8 +369,8 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
         LinearLayoutManager llm = new LinearLayoutManager(QuizInfo.this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         Quizlist.setLayoutManager(llm);
-        Quizlist.setAdapter(quizAdapter);
         quizAdapter.notifyDataSetChanged();
+        Quizlist.setAdapter(quizAdapter);
     }
 
 
@@ -404,9 +404,11 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
                     Quizlist.setAdapter(quizAdapter);
                     waitLL.setVisibility(View.GONE);
                     Quizlist.setVisibility(View.VISIBLE);
-                    quizAdapter.notifyDataSetChanged();
                     dbManager.insertQzList("QuizList", QueResponse);
                     dbManager.close();
+
+                    quizAdapter.notifyDataSetChanged();
+
                 } else {
                     Log.e("QuizInfo", "Response body is null");
                     waitLL.setVisibility(View.GONE);

@@ -325,7 +325,7 @@ public class GetDetail {
                 if (response.isSuccessful() && response.body() != null) {
                     GlobleTime data = response.body();
                     String date = data.getDatetime() != null ? data.getDatetime() : fallbackDate;
-                    GetDetail.currdatetime = date;  // Update the current datetime with either real or fallback
+                    GetDetail.currdatetime = date.replace('T', ' ');  // Update the current datetime with either real or fallback
                     callback.onResponse(null, Response.success(date));  // Pass the date as a string
                 } else {
                     callback.onResponse(null, Response.success(fallbackDate));  // Pass fallback date as a string

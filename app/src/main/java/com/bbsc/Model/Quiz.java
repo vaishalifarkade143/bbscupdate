@@ -211,7 +211,8 @@ public class Quiz {
         }
 
         public String getModified_date() {
-            return modified_date;
+            //modified_date
+            return ex_start_date +' '+ ex_start_time;
         }
 
         public void setModified_date(String modified_date) {

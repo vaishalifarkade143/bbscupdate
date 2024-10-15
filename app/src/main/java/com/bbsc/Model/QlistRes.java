@@ -69,6 +69,7 @@ public class QlistRes {
         public String modified_date;
 
         public String getModified_date() {
+
             return modified_date;
         }
 

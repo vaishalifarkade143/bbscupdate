@@ -180,22 +180,23 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 //        Log.d("Time get real1: " , String.valueOf(date));
 
 
-        GetDetail.getRealTimeAsync(new retrofit2.Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    String datetime = response.body();
-                    Log.d("Time get real1:", datetime);  // Log the received date or fallback
-                    // Use the datetime safely in your app
-                }
-            }
+//        GetDetail.getRealTimeAsync(new retrofit2.Callback<String>() {
+//            @Override
+//            public void onResponse(Call<String> call, Response<String> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    String datetime = response.body();
+//                    Log.d("Time get real1:", datetime);
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<String> call, Throwable t) {
+//                Log.e("Time get real1:", "Failed to fetch real time", t);
+//
+//            }
+//        });
 
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.e("Time get real1:", "Failed to fetch real time", t);
-                // Handle failure (e.g., show error message)
-            }
-        });
+        SimpleDateFormat datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
 
 
@@ -251,7 +252,9 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
                             try {
                                 // Parsing the modified date of the current question
-                                mode_date = sdf.parse(ques.get(holder.getAdapterPosition()).getModified_date());
+                                String myDate = ques.get(holder.getAdapterPosition()).getModified_date();
+
+                                mode_date = sdf.parse(myDate);
 
                                 // Check that quelistItems has elements and get the modified date safely
                                 if (quelistItems.get(0).getModified_date() != null) {
@@ -259,6 +262,14 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                 } else {
                                     Log.e("DateError", "Modified date for the question list item is null. 259");
                                     return; // Exit if ques_date is null
+                                }
+
+                                if(mode_date == null){
+                                    Log.d("mode_date","Test1");
+                                }
+
+                                if(ques_date == null){
+                                    Log.d("ques_date","Test2");
                                 }
 
                                 if (mode_date != null && ques_date != null) {
@@ -378,17 +389,16 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                 long millis = millisUntilFinished;
                                 //Log.d("hr: ", TimeUnit.MILLISECONDS.toHours(millis) + " min: " + TimeUnit.MILLISECONDS.toMinutes(millis));
 
-                                holder.tmTxt.setText("Time left to start: ");
+
                                 if (TimeUnit.MILLISECONDS.toHours(millis) <=24) {
 
 
                                     if (holderPosition != RecyclerView.NO_POSITION) {
                                         List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holderPosition).getExamId());
-                                        // Proceed with your logic here
+
                                         dbManager.close();
                                     } else {
-                                        // Handle the case when the position is invalid
-
+                                        countDownTimer.cancel();
                                         toastMsg("Invalid adapter position:"+holderPosition);
                                     }
 
@@ -410,11 +420,20 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
                                             try {
 
-                                                Log.e("DateError", "Modified date for the question list item is null. 411");
+
                                                 if(ques.size()>0 && holderPosition >0) {
 
                                                     // Parsing the modified date of the current question
-                                                    mode_date = sdf.parse(ques.get(holderPosition).getModified_date());
+                                                    String myDate = ques.get(holderPosition).getModified_date();
+                                                    Log.d("myDate1", "mydate1:"+myDate);
+                                                    mode_date = sdf.parse(myDate);
+                                                }else{
+
+                                                    // Parsing the modified date of the current question
+                                                    String myDate = ques.get(0).getModified_date();
+                                                    Log.d("myDate2", "mydate2:"+myDate);
+                                                    mode_date = sdf.parse(myDate);
+
                                                 }
                                                 // Check that quelistItems has elements and get the modified date safely
                                                 if (quelistItems.get(0).getModified_date() != null) {
@@ -422,6 +441,14 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                                 } else {
                                                     Log.e("DateError", "Modified date for the question list item is null. 421");
                                                     return; // Exit if ques_date is null
+                                                }
+
+                                                if(mode_date == null){
+                                                    Log.d("mode_date","Test3");
+                                                }
+
+                                                if(ques_date == null){
+                                                    Log.d("ques_date","Test4");
                                                 }
 
                                                 if (mode_date != null && ques_date != null) {
@@ -457,9 +484,18 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                     holder.timer.setTextColor(Color.parseColor("#FFF55625"));
 
                                     //Log.d("exam_id onTick", ques.get(holderPosition).getExamId());
+                                    holder.tmTxt.setText("Time left to start: ");
                                 }
+
+
+
+
                                 hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis), TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
-                                holder.timer.setText(hms);//set
+
+                                holder.timer.setText(hms);
+
+
+
 //                                        }
                             }
 
