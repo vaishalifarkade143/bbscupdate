@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Animatable;
 import android.net.ConnectivityManager;
@@ -176,140 +177,301 @@ public class SuccessActivity extends AppCompatActivity implements NetworkStateRe
     }
 
 
-    private void quiz_submit() {
-        waitLL.setVisibility(View.VISIBLE);
-        resultLL.setVisibility(View.GONE);
-        errorLL.setVisibility(View.GONE);
+//    private void quiz_submit() {
+//        waitLL.setVisibility(View.VISIBLE);
+//        resultLL.setVisibility(View.GONE);
+//        errorLL.setVisibility(View.GONE);
+//
+//        // Log submission data
+//        Log.d("Submit_res1", new Gson().toJson(GetDetail.att_data));
+//
+//        // Retrieve the user information
+//        User user = SharedPrefManager.getInstance(SuccessActivity.this).getUser();
+//
+//        // Create a list to hold the attempts
+//        List<QuizRequestBody.Attempt> attemptList = new ArrayList<>();
+//
+//        try {
+//            // Populate the attemptList with data from GetDetail.att_data
+//            int att_data_length = GetDetail.att_data.length();
+//            Log.d("att_data_length", "quiz_submit: " +att_data_length);
+//            for (int i = 0; i < GetDetail.att_data.length(); i++) {
+//                JSONObject jsonObject = GetDetail.att_data.getJSONObject(i);
+//                QuizRequestBody.Attempt attempt = new QuizRequestBody.Attempt(
+//                        jsonObject.getString("que_id"),
+//                        jsonObject.getString("exam_id"),
+//                        jsonObject.getInt("stud_id"),
+//                        jsonObject.getString("pro_id"),
+//                        jsonObject.getString("correct_ans"),
+//                        Integer.parseInt(jsonObject.optString("stud_given_ans", "0")), // Fetch and parse stud_given_ans safely
+//                        jsonObject.getString("is_correct"),
+//                        jsonObject.getString("attempt_no"),
+//                        jsonObject.getString("ans_marks")
+//                );
+//                attemptList.add(attempt);
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace(); // Handle JSON parsing error
+//            waitLL.setVisibility(View.GONE);
+//            Toast.makeText(this, "Error parsing submission data", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//
+//        Log.d("quiz_submit: ", "attemptList" + attemptList);
+//
+//        // Create the QuizAttemptData object
+//        QuizRequestBody attemptData = new QuizRequestBody();
+//        attemptData.setAttempt(attemptList);
+//        attemptData.setRoll_no(user.getRoll_no()); // Use the user's roll number
+//        attemptData.setEnrollment_no(user.getEnrollment_no()); // Use the user's enrollment number
+//
+//        // Log the request body
+//        Log.d("attemptList json", "data is " + new Gson().toJson(attemptData));
+//
+//        // Create the API call
+//        Api apiService = RetrofitClient.getApiService();
+//        Call<Qsubmit> call = apiService.QuizSubmit(attemptData);
+//
+//        // Handle the API response
+//        call.enqueue(new Callback<Qsubmit>() {
+//            @Override
+//            public void onResponse(@NotNull Call<Qsubmit> call, @NotNull Response<Qsubmit> response) {
+//                Log.d("API Response 1", "Response Code: " + response.code());
+//                Log.d("Submit_respons is:", new Gson().toJson(response.body()));
+//
+//                waitLL.setVisibility(View.GONE);
+//
+//                if (response.isSuccessful()) {
+//                    Qsubmit res = response.body();
+//
+//
+//
+//                    if (res == null) {
+//                        Log.e("Submit Error", "Response body is null");
+//                        Toast.makeText(SuccessActivity.this, "Failed to receive a valid response", Toast.LENGTH_SHORT).show();
+//                        errorLL.setVisibility(View.VISIBLE);
+//                        return;
+//                    }
+//
+//                    if (res.getError()) {
+//                        Toast.makeText(SuccessActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+//                        errorLL.setVisibility(View.VISIBLE);
+//                    } else {
+//                        // Update user status and quiz attempt
+//                        String examTitle = exam_title != null ? exam_title : "";  // Default empty string if null
+//                        JSONArray attData = GetDetail.att_data != null ? GetDetail.att_data : new JSONArray();  // Empty if null
+//                        String attemptNumber = att_no != null ? att_no : "1";  // Default attempt number
+//
+//                        SharedPrefManager.getInstance(SuccessActivity.this).editUser2(0, examTitle, attData, attemptNumber);
+//
+//                        // Assuming att_data contains the quiz attempt data
+//                        JSONArray jsonArray = GetDetail.att_data;
+//
+//                        try {
+//                            JSONObject jsonObject = jsonArray.getJSONObject(0);  // Get the first object
+//                            Log.d("session_exam_id", String.valueOf(jsonObject.get("exam_id")));
+//
+//                            // Get the current attempt number and exam ID
+//                            int currentAttempt = jsonObject.getInt("attempt_no");
+//                            String examId = String.valueOf(jsonObject.get("exam_id"));
+//
+//                            // Increment the attempt number
+//                            int newAttempt = currentAttempt + 1;
+//
+//                            // Update the quiz list in the database with the incremented attempt
+//                            dbManager.updateQuizList(examId, String.valueOf(newAttempt)); // Pass the new attempt number as a String
+//                            Log.d("New Attempt Number", "Attempt number updated to: " + newAttempt);
+//
+//                        } catch (JSONException e) {
+//                            Log.e("Update Error", e.getMessage());
+//                        }
+//
+//                        Toast.makeText(SuccessActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+//                        resultLL.setVisibility(View.VISIBLE);
+//                        errorLL.setVisibility(View.GONE);
+//                        showResult(res.getData());
+//                    }
+//                } else {
+//                    Log.e("Submit Error", "Response not successful: " + response.code());
+//                    Toast.makeText(SuccessActivity.this, "Failed to submit. Server error.", Toast.LENGTH_SHORT).show();
+//                    errorLL.setVisibility(View.VISIBLE);
+//
+////                    Intent mainActivityIntent = new Intent(SuccessActivity.this, MainActivity.class);
+////                    mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear the stack
+////                    startActivity(mainActivityIntent); // Start MainActivity
+//                    finish(); // Finish SecondActivity
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NotNull Call<Qsubmit> call, @NotNull Throwable t) {
+//                Log.d("Submit Error2:", t.getLocalizedMessage());
+//                waitLL.setVisibility(View.GONE);
+//                errorLL.setVisibility(View.VISIBLE);
+//                resubmit = true; // Allow retry on failure
+//            }
+//        });
+//    }
+private void quiz_submit() {
+    waitLL.setVisibility(View.VISIBLE);
+    resultLL.setVisibility(View.GONE);
+    errorLL.setVisibility(View.GONE);
 
-        // Log submission data
-        Log.d("Submit_res1", new Gson().toJson(GetDetail.att_data));
+    // Log submission data
+    Log.d("Submit_res1", new Gson().toJson(GetDetail.att_data));
 
-        // Retrieve the user information
-        User user = SharedPrefManager.getInstance(SuccessActivity.this).getUser();
+    // Retrieve the user information
+    User user = SharedPrefManager.getInstance(SuccessActivity.this).getUser();
 
-        // Create a list to hold the attempts
-        List<QuizRequestBody.Attempt> attemptList = new ArrayList<>();
+    // Retrieve previous exam ID and attempt number from SharedPreferences
+    SharedPreferences sharedPreferences = getSharedPreferences("my_shared_preff", MODE_PRIVATE);
+    String prevExamId = sharedPreferences.getString("prev_exam_id", "");  // Default to empty string if not found
+    int prevAttemptNo = sharedPreferences.getInt("prev_attempt_no", 1);  // Default attempt number is 1 if not found
 
-        try {
-            // Populate the attemptList with data from GetDetail.att_data
-            for (int i = 0; i < GetDetail.att_data.length(); i++) {
-                JSONObject jsonObject = GetDetail.att_data.getJSONObject(i);
-                QuizRequestBody.Attempt attempt = new QuizRequestBody.Attempt(
-                        jsonObject.getString("que_id"),
-                        jsonObject.getString("exam_id"),
-                        jsonObject.getInt("stud_id"),
-                        jsonObject.getString("pro_id"),
-                        jsonObject.getString("correct_ans"),
-                        Integer.parseInt(jsonObject.optString("stud_given_ans", "0")), // Fetch and parse stud_given_ans safely
-                        jsonObject.getString("is_correct"),
-                        jsonObject.getString("attempt_no"),
-                        jsonObject.getString("ans_marks")
-                );
-                attemptList.add(attempt);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace(); // Handle JSON parsing error
+    // Create a list to hold the attempts
+    List<QuizRequestBody.Attempt> attemptList = new ArrayList<>();
+
+    try {
+        // Populate the attemptList with data from GetDetail.att_data
+        int att_data_length = GetDetail.att_data.length();
+        Log.d("att_data_length", "quiz_submit: " + att_data_length);
+
+        for (int i = 0; i < GetDetail.att_data.length(); i++) {
+            JSONObject jsonObject = GetDetail.att_data.getJSONObject(i);
+            QuizRequestBody.Attempt attempt = new QuizRequestBody.Attempt(
+                    jsonObject.getString("que_id"),
+                    jsonObject.getString("exam_id"),
+                    jsonObject.getInt("stud_id"),
+                    jsonObject.getString("pro_id"),
+                    jsonObject.getString("correct_ans"),
+                    Integer.parseInt(jsonObject.optString("stud_given_ans", "0")), // Fetch and parse stud_given_ans safely
+                    jsonObject.getString("is_correct"),
+                    jsonObject.getString("attempt_no"),
+                    jsonObject.getString("ans_marks")
+            );
+            attemptList.add(attempt);
+        }
+    } catch (JSONException e) {
+        e.printStackTrace(); // Handle JSON parsing error
+        waitLL.setVisibility(View.GONE);
+        Toast.makeText(this, "Error parsing submission data", Toast.LENGTH_SHORT).show();
+        return;
+    }
+
+    Log.d("quiz_submit: ", "attemptList" + attemptList);
+
+    // Get the first object's exam ID (assuming att_data contains the quiz attempt data)
+    String currentExamId = "";
+    try {
+        JSONObject firstQuizObject = GetDetail.att_data.getJSONObject(0);  // Get the first quiz object
+        currentExamId = firstQuizObject.getString("exam_id");
+    } catch (JSONException e) {
+        e.printStackTrace();
+    }
+
+    // Determine whether to reset or increment the attempt number
+    int newAttemptNo;
+    if (!prevExamId.equals(currentExamId)) {
+        // If exam IDs are different, reset attempt number to 1
+        newAttemptNo = 1;
+        Log.d("Attempt No", "New exam detected. Resetting attempt number to 1.");
+    } else {
+        // If exam IDs are the same, increment the attempt number
+        newAttemptNo = prevAttemptNo + 1;
+        Log.d("Attempt No", "Same exam. Incrementing attempt number to " + newAttemptNo);
+    }
+
+    // Store the new exam ID and attempt number in SharedPreferences
+    SharedPreferences.Editor editor = sharedPreferences.edit();
+    editor.putString("prev_exam_id", currentExamId);
+    editor.putInt("prev_attempt_no", newAttemptNo);
+    editor.apply();
+
+    // Log the updated attempt number
+    Log.d("Updated Attempt", "Attempt No: " + newAttemptNo);
+
+    // Create the QuizAttemptData object
+    QuizRequestBody attemptData = new QuizRequestBody();
+    attemptData.setAttempt(attemptList);
+    attemptData.setRoll_no(user.getRoll_no());  // Use the user's roll number
+    attemptData.setEnrollment_no(user.getEnrollment_no());  // Use the user's enrollment number
+
+    // Log the request body
+    Log.d("attemptList json", "data is " + new Gson().toJson(attemptData));
+
+    // Create the API call
+    Api apiService = RetrofitClient.getApiService();
+    Call<Qsubmit> call = apiService.QuizSubmit(attemptData);
+
+    // Handle the API response
+    String finalCurrentExamId = currentExamId;
+    call.enqueue(new Callback<Qsubmit>() {
+        @Override
+        public void onResponse(@NotNull Call<Qsubmit> call, @NotNull Response<Qsubmit> response) {
+            Log.d("API Response 1", "Response Code: " + response.code());
+            Log.d("Submit_respons is:", new Gson().toJson(response.body()));
+
             waitLL.setVisibility(View.GONE);
-            Toast.makeText(this, "Error parsing submission data", Toast.LENGTH_SHORT).show();
-            return;
+
+            if (response.isSuccessful()) {
+                Qsubmit res = response.body();
+
+                if (res == null) {
+                    Log.e("Submit Error", "Response body is null");
+                    Toast.makeText(SuccessActivity.this, "Failed to receive a valid response", Toast.LENGTH_SHORT).show();
+                    errorLL.setVisibility(View.VISIBLE);
+                    return;
+                }
+
+                if (res.getError()) {
+                    Toast.makeText(SuccessActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                    errorLL.setVisibility(View.VISIBLE);
+                } else {
+                    // Update user status and quiz attempt
+                    String examTitle = exam_title != null ? exam_title : "";  // Default empty string if null
+                    JSONArray attData = GetDetail.att_data != null ? GetDetail.att_data : new JSONArray();  // Empty if null
+                    String attemptNumber = String.valueOf(newAttemptNo);  // Use the new attempt number
+
+                    SharedPrefManager.getInstance(SuccessActivity.this).editUser2(0, examTitle, attData, attemptNumber);
+
+                    // Assuming att_data contains the quiz attempt data
+                    JSONArray jsonArray = GetDetail.att_data;
+
+                    try {
+                        JSONObject jsonObject = jsonArray.getJSONObject(0);  // Get the first object
+                        Log.d("session_exam_id", String.valueOf(jsonObject.get("exam_id")));
+
+                        // Update the quiz list in the database with the incremented attempt
+                        dbManager.updateQuizList(finalCurrentExamId, attemptNumber); // Pass the new attempt number as a String
+                        Log.d("New Attempt Number", "Attempt number updated to: " + newAttemptNo);
+
+                    } catch (JSONException e) {
+                        Log.e("Update Error", e.getMessage());
+                    }
+
+                    Toast.makeText(SuccessActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                    resultLL.setVisibility(View.VISIBLE);
+                    errorLL.setVisibility(View.GONE);
+                    showResult(res.getData());
+                }
+            } else {
+                Log.e("Submit Error", "Response not successful: " + response.code());
+                Toast.makeText(SuccessActivity.this, "Failed to submit. Server error.", Toast.LENGTH_SHORT).show();
+                errorLL.setVisibility(View.VISIBLE);
+                finish(); // Finish SecondActivity
+            }
         }
 
-        Log.d("quiz_submit: ", "attemptList" + attemptList);
-
-        // Create the QuizAttemptData object
-        QuizRequestBody attemptData = new QuizRequestBody();
-        attemptData.setAttempt(attemptList);
-        attemptData.setRoll_no(user.getRoll_no()); // Use the user's roll number
-        attemptData.setEnrollment_no(user.getEnrollment_no()); // Use the user's enrollment number
-
-        // Log the request body
-        Log.d("attemptList json", "data is " + new Gson().toJson(attemptData));
-
-        // Create the API call
-        Api apiService = RetrofitClient.getApiService();
-        Call<Qsubmit> call = apiService.QuizSubmit(attemptData);
-
-        // Handle the API response
-        call.enqueue(new Callback<Qsubmit>() {
-            @Override
-            public void onResponse(@NotNull Call<Qsubmit> call, @NotNull Response<Qsubmit> response) {
-                Log.d("API Response 1", "Response Code: " + response.code());
-                Log.d("Submit_respons is:", new Gson().toJson(response.body()));
-
-                waitLL.setVisibility(View.GONE);
-
-                if (response.isSuccessful()) {
-                    Qsubmit res = response.body();
-
-
-
-                    if (res == null) {
-                        Log.e("Submit Error", "Response body is null");
-                        Toast.makeText(SuccessActivity.this, "Failed to receive a valid response", Toast.LENGTH_SHORT).show();
-                        errorLL.setVisibility(View.VISIBLE);
-                        return;
-                    }
-
-                    if (res.getError()) {
-                        Toast.makeText(SuccessActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
-                        errorLL.setVisibility(View.VISIBLE);
-                    } else {
-                        // Update user status and quiz attempt
-                        String examTitle = exam_title != null ? exam_title : "";  // Default empty string if null
-                        JSONArray attData = GetDetail.att_data != null ? GetDetail.att_data : new JSONArray();  // Empty if null
-                        String attemptNumber = att_no != null ? att_no : "1";  // Default attempt number
-
-                        SharedPrefManager.getInstance(SuccessActivity.this).editUser2(0, examTitle, attData, attemptNumber);
-
-                        // Assuming att_data contains the quiz attempt data
-                        JSONArray jsonArray = GetDetail.att_data;
-
-                        try {
-                            JSONObject jsonObject = jsonArray.getJSONObject(0);  // Get the first object
-                            Log.d("session_exam_id", String.valueOf(jsonObject.get("exam_id")));
-
-                            // Get the current attempt number and exam ID
-                            int currentAttempt = jsonObject.getInt("attempt_no");
-                            String examId = String.valueOf(jsonObject.get("exam_id"));
-
-                            // Increment the attempt number
-                            int newAttempt = currentAttempt + 1;
-
-                            // Update the quiz list in the database with the incremented attempt
-                            dbManager.updateQuizList(examId, String.valueOf(newAttempt)); // Pass the new attempt number as a String
-                            Log.d("New Attempt Number", "Attempt number updated to: " + newAttempt);
-
-                        } catch (JSONException e) {
-                            Log.e("Update Error", e.getMessage());
-                        }
-
-                        Toast.makeText(SuccessActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
-                        resultLL.setVisibility(View.VISIBLE);
-                        errorLL.setVisibility(View.GONE);
-                        showResult(res.getData());
-                    }
-                } else {
-                    Log.e("Submit Error", "Response not successful: " + response.code());
-                    Toast.makeText(SuccessActivity.this, "Failed to submit. Server error.", Toast.LENGTH_SHORT).show();
-                    errorLL.setVisibility(View.VISIBLE);
-
-//                    Intent mainActivityIntent = new Intent(SuccessActivity.this, MainActivity.class);
-//                    mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear the stack
-//                    startActivity(mainActivityIntent); // Start MainActivity
-                    finish(); // Finish SecondActivity
-
-                }
-            }
-
-            @Override
-            public void onFailure(@NotNull Call<Qsubmit> call, @NotNull Throwable t) {
-                Log.d("Submit Error2:", t.getLocalizedMessage());
-                waitLL.setVisibility(View.GONE);
-                errorLL.setVisibility(View.VISIBLE);
-                resubmit = true; // Allow retry on failure
-            }
-        });
-    }
+        @Override
+        public void onFailure(@NotNull Call<Qsubmit> call, @NotNull Throwable t) {
+            Log.d("Submit Error2:", t.getLocalizedMessage());
+            waitLL.setVisibility(View.GONE);
+            errorLL.setVisibility(View.VISIBLE);
+            resubmit = true; // Allow retry on failure
+        }
+    });
+}
 
 
 

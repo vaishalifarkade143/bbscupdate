@@ -22,6 +22,8 @@ public class SharedPrefManager {
 
     private static SharedPrefManager mInstance;
     private Context mCtx;
+    private SharedPreferences sharedPreferences;
+
     android.content.SharedPreferences pref;
     android.content.SharedPreferences.Editor editor;
 
@@ -188,7 +190,29 @@ public class SharedPrefManager {
         editor.clear();
         editor.apply();
     }
+    // Store the previous exam ID
+    public void storePrevExamId(String examId) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("prev_exam_id", examId);
+        editor.apply();
+    }
 
+    // Retrieve the previous exam ID
+    public String getPrevExamId() {
+        return sharedPreferences.getString("prev_exam_id", "");
+    }
+
+    // Store the previous attempt number
+    public void storePrevAttemptNo(int attemptNo) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("prev_attempt_no", attemptNo);
+        editor.apply();
+    }
+
+    // Retrieve the previous attempt number
+    public int getPrevAttemptNo() {
+        return sharedPreferences.getInt("prev_attempt_no", 1);  // Default to 1
+    }
 
 
 

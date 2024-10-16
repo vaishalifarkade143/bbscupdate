@@ -358,7 +358,12 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                         holder.startBtn.setVisibility(View.GONE);
                         holder.timer_LL.setVisibility(View.GONE);
                         holder.expire.setVisibility(View.VISIBLE);
-                        if(Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt())>1) {
+//                        if(Integer.parseInt(ques.get(holder.getAdapterPosition()).getExam_last_attempt())>1) {
+//                            holder.expire.setText("Submited.");
+//                            holder.expire.setTextColor(Color.parseColor("#FF008000"));
+//                        }
+                        String NumberOfAttemps = ques.get(holder.getAdapterPosition()).getExam_last_attempt();
+                        if(NumberOfAttemps != null && Integer.parseInt(NumberOfAttemps)>1) {
                             holder.expire.setText("Submited.");
                             holder.expire.setTextColor(Color.parseColor("#FF008000"));
                         }
@@ -376,6 +381,9 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                 int holderPosition = holder.getAdapterPosition();
                                 if (holderPosition == RecyclerView.NO_POSITION) {
                                     countDownTimer.cancel();
+//                                    if(holderPosition<0){
+//                                        holderPosition = ques.size() -1;
+//                                    }
                                     toastMsg("Invalid adapter position: " + holderPosition);
                                     Log.d("adapterposition:", "Invalid:  " + holderPosition);
                                     return; // Early exit if the position is invalid

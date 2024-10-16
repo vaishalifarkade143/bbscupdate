@@ -226,17 +226,17 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
 
 
         // Initialize auto-refresh functionality
-        autoRefreshHandler = new Handler();
-        autoRefreshRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (isNetworkAvailable()) { // Check if network is available
-                    getQuiz(); // Call the method to refresh quiz data
-                }
-                autoRefreshHandler.postDelayed(this, AUTO_REFRESH_INTERVAL); // Schedule the next refresh
-            }
-        };
-        autoRefreshHandler.post(autoRefreshRunnable); // Start the auto-refresh when the activity is created
+//        autoRefreshHandler = new Handler();
+//        autoRefreshRunnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                if (isNetworkAvailable()) { // Check if network is available
+//                    getQuiz(); // Call the method to refresh quiz data
+//                }
+//                autoRefreshHandler.postDelayed(this, AUTO_REFRESH_INTERVAL); // Schedule the next refresh
+//            }
+//        };
+//        autoRefreshHandler.post(autoRefreshRunnable); // Start the auto-refresh when the activity is created
     }
 
     @Override
