@@ -29,9 +29,9 @@ public class RetrofitClient {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY); // or BASIC for just URL
 
         return new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS) // Increase the connection timeout
-                .readTimeout(30, TimeUnit.SECONDS)    // Increase the read timeout
-                .writeTimeout(30, TimeUnit.SECONDS)   // Increase the write timeout
+                .connectTimeout(60, TimeUnit.SECONDS) // Increase the connection timeout
+                .readTimeout(60, TimeUnit.SECONDS)    // Increase the read timeout
+                .writeTimeout(60, TimeUnit.SECONDS)   // Increase the write timeout
                 .addInterceptor(loggingInterceptor)
                 .build();
     }

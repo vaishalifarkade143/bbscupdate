@@ -116,6 +116,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull QuizAdapter.ViewHolder holder, int position) {
         QueResponse = ques.get(holder.getAdapterPosition());
+
 //        Log.d("ques", new Gson().toJson(ques));
         holder.title.setText(ques.get(holder.getAdapterPosition()).getExamTitle());
 
@@ -180,22 +181,22 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 //        Log.d("Time get real1: " , String.valueOf(date));
 
 
-        GetDetail.getRealTimeAsync(new retrofit2.Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    String datetime = response.body();
-                    Log.d("Time get real1:", datetime);  // Log the received date or fallback
-                    // Use the datetime safely in your app
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.e("Time get real1:", "Failed to fetch real time", t);
-                // Handle failure (e.g., show error message)
-            }
-        });
+//        GetDetail.getRealTimeAsync(new retrofit2.Callback<String>() {
+//            @Override
+//            public void onResponse(Call<String> call, Response<String> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    String datetime = response.body();
+//                    Log.d("Time get real1:", datetime);  // Log the received date or fallback
+//                    // Use the datetime safely in your app
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<String> call, Throwable t) {
+//                Log.e("Time get real1:", "Failed to fetch real time", t);
+//                // Handle failure (e.g., show error message)
+//            }
+//        });
 
 
 
@@ -368,110 +369,219 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                         holder.timer_LL.setVisibility(View.VISIBLE);
                         holder.expire.setVisibility(View.GONE);
 
+
                         countDownTimer = new CountDownTimer(noOfMinutes, 1000) {
                             @SuppressLint("DefaultLocale")
                             public void onTick(long millisUntilFinished) {
                                 int holderPosition = holder.getAdapterPosition();
+                                if (holderPosition == RecyclerView.NO_POSITION) {
+                                    countDownTimer.cancel();
+                                    toastMsg("Invalid adapter position: " + holderPosition);
+                                    Log.d("adapterposition:", "Invalid:  " + holderPosition);
+                                    return; // Early exit if the position is invalid
+                                }
+
                                 long millis = millisUntilFinished;
                                 Log.d("hr: ", TimeUnit.MILLISECONDS.toHours(millis) + " min: " + TimeUnit.MILLISECONDS.toMinutes(millis));
-
                                 holder.tmTxt.setText("Time left to start: ");
-                                if (TimeUnit.MILLISECONDS.toHours(millis) <=24) {
 
-
-                                    if (holderPosition != RecyclerView.NO_POSITION) {
-                                        List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holderPosition).getExamId());
-                                        // Proceed with your logic here
-                                    } else {
-                                        // Handle the case when the position is invalid
-
-                                        toastMsg("Invalid adapter position:"+holderPosition);
-                                    }
-
-                                    if(quelistItems.size() <= 0) {
-
-                                        toastMsg("Adapter position:"+holderPosition);
-                                        if(ques.size()<=0){
-                                            getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "0");
-                                        }
-
-                                    }else{
-                                        //added for date formate error app crash
-
-                                        if (ques.size() > 0 && quelistItems.size() > 0) {
-
-                                            /*ques.get(adapterPosition).getModified_date() != null*/
-                                            Date mode_date = null, ques_date = null;
-                                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()); // Replace with your date format
-
-                                            try {
-
-                                                Log.e("DateError", "Modified date for the question list item is null.");
-                                                if(ques.size()>0 && holderPosition >0) {
-
-                                                    // Parsing the modified date of the current question
-                                                    mode_date = sdf.parse(ques.get(holderPosition).getModified_date());
-                                                }
-                                                // Check that quelistItems has elements and get the modified date safely
-                                                if (quelistItems.get(0).getModified_date() != null) {
-                                                    ques_date = sdf.parse(quelistItems.get(0).getModified_date());
-                                                } else {
-                                                    Log.e("DateError", "Modified date for the question list item is null.");
-                                                    return; // Exit if ques_date is null
-                                                }
-
-                                                if (mode_date != null && ques_date != null) {
-                                                    // Calculate the difference in milliseconds
-                                                    long diff2 = mode_date.getTime() - ques_date.getTime();
-
-                                                    // Calculate the differences in various units
-                                                    int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
-                                                    int diffHours2 = (int) (diff2 / (60 * 60 * 1000));
-                                                    int diffMin2 = (int) (diff2 / (60 * 1000));
-                                                    int diffSec2 = (int) (diff2 / 1000);
-
-                                                    Log.d("updatediff", "diffDays2: " + diffDays2 + ", diffHours: " + diffHours2 + ", diffMin: " + diffMin2 + ", diffSec: " + diffSec2);
-
-                                                    // Example condition to trigger getList() call
-                                                    if (diffHours2 > 0 || diffMin2 > 0 || diffSec2 > 0) { // Adjust logic based on your requirement
-                                                        getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "1");
-                                                    }
-                                                } else {
-                                                    Log.e("DateError", "One of the parsed dates is null.");
-                                                }
-                                            } catch (ParseException e) {
-                                                e.printStackTrace();
-                                                Log.e("DateError", "Failed to parse dates. Error: " + e.getMessage());
-                                            }
-                                        }
-                                        else {
-                                            Log.e("DateError", "Modified date or question list is empty.");
-                                        }
-
-                                    }
-
-                                    holder.timer.setTextColor(Color.parseColor("#FFF55625"));
-
-                                    //Log.d("exam_id onTick", ques.get(holderPosition).getExamId());
+                                if (TimeUnit.MILLISECONDS.toHours(millis) <= 24) {
+                                    List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holderPosition).getExamId());
+                                    processQuestions(holderPosition, quelistItems);
+                                    updateTimerDisplay(millis);
                                 }
-                                hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis), TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
-                                holder.timer.setText(hms);//set
-//                                        }
+                            }
+
+                            private void processQuestions(int holderPosition, List<QlistRes.Ques> quelistItems) {
+                                if (quelistItems.isEmpty()) {
+                                    handleNoQuestions(holderPosition);
+                                } else {
+                                    handleQuestions(holderPosition, quelistItems);
+                                }
+                            }
+
+                            private void handleNoQuestions(int holderPosition) {
+                                toastMsg("No questions available for the adapter position: " + holderPosition);
+                                if (ques.isEmpty()) {
+                                    getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "0");
+                                }
+                            }
+
+                            private void handleQuestions(int holderPosition, List<QlistRes.Ques> quelistItems) {
+                                if (!ques.isEmpty()) {
+                                    Date modeDate = parseDate(ques.get(holderPosition).getModified_date());
+                                    Date quesDate = parseDate(quelistItems.get(0).getModified_date());
+
+                                    if (modeDate != null && quesDate != null) {
+                                        long diff = modeDate.getTime() - quesDate.getTime();
+                                        logTimeDifference(diff);
+
+                                        if (diff > 0) {
+                                            getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "1");
+                                        }
+                                    } else {
+                                        Log.e("DateError", "One of the parsed dates is null.");
+                                    }
+                                } else {
+                                    Log.e("DataError", "Question list is empty.");
+                                }
+                            }
+
+                            private Date parseDate(String dateString) {
+                                if (dateString == null) {
+                                    Log.e("DateError", "Date string is null.");
+                                    return null;
+                                }
+
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                                try {
+                                    return sdf.parse(dateString);
+                                } catch (ParseException e) {
+                                    Log.e("DateError", "Failed to parse date: " + dateString + ". Error: " + e.getMessage());
+                                    return null;
+                                }
+                            }
+
+                            private void logTimeDifference(long diff) {
+                                Log.d("diff", "Difference in milliseconds: " + diff);
+                                int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
+                                int diffHours = (int) (diff / (60 * 60 * 1000));
+                                int diffMin = (int) (diff / (60 * 1000));
+                                int diffSec = (int) (diff / 1000);
+                                Log.d("TimeDiff", "Days: " + diffDays + ", Hours: " + diffHours + ", Minutes: " + diffMin + ", Seconds: " + diffSec);
+                            }
+
+                            private void updateTimerDisplay(long millis) {
+                                String hms = String.format("%02d:%02d:%02d",
+                                        TimeUnit.MILLISECONDS.toHours(millis),
+                                        TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
+                                        TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
+                                );
+                                holder.timer.setText(hms);
+                                holder.timer.setTextColor(Color.parseColor("#FFF55625")); // Consider using a constant for color
                             }
 
                             public void onFinish() {
                                 holder.startBtn.setVisibility(View.VISIBLE);
-//                                        Toast.makeText(context, "1*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
                                 List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
-                                if(quelistItems.size()<=0)
+                                if (quelistItems.isEmpty()) {
                                     getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "0");
-                                Log.d("set get Exam Id", "Exam Id"+ques.get(holder.getAdapterPosition()).getExamId());
-
+                                }
                                 holder.timer_LL.setVisibility(View.GONE);
                                 holder.expire.setVisibility(View.GONE);
                                 countDownTimer = null;
                             }
                         }.start();
+
+//                        countDownTimer = new CountDownTimer(noOfMinutes, 1000) {
+//                            @SuppressLint("DefaultLocale")
+//                            public void onTick(long millisUntilFinished) {
+//                                int holderPosition = holder.getAdapterPosition();
+//                                long millis = millisUntilFinished;
+//                                Log.d("hr: ", TimeUnit.MILLISECONDS.toHours(millis) + " min: " + TimeUnit.MILLISECONDS.toMinutes(millis));
+//
+//                                holder.tmTxt.setText("Time left to start: ");
+//
+//                                if (TimeUnit.MILLISECONDS.toHours(millis) <= 24) {
+//
+//
+//                                    if (holderPosition != RecyclerView.NO_POSITION) {
+//                                        List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holderPosition).getExamId());
+//                                        Log.d("holderPosition", "holderPosition"+holderPosition);
+//                                        // Proceed with your logic here
+//                                    } else {
+//                                        // Handle the case when the position is invalid
+//                                        countDownTimer.cancel();
+//                                        toastMsg("Invalid adapter position: "+holderPosition);
+//                                        Log.d("adapterposition:", "Invalid:  "+holderPosition);
+//                                    }
+//
+//                                    if(quelistItems.size() <= 0) {
+//
+//                                        toastMsg("Adapter position:"+holderPosition);
+//                                        if(ques.size()<=0){
+//                                            getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "0");
+//                                        }
+//
+//                                    }else{
+//                                        //added for date formate error app crash
+//
+//                                        if (ques.size() > 0 && quelistItems.size() > 0) {
+//
+//                                            /*ques.get(adapterPosition).getModified_date() != null*/
+//                                            Date mode_date = null, ques_date = null;
+//                                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()); // Replace with your date format
+//
+//                                            try {
+//
+//                                                Log.e("DateError11", "Modified date for the question list item is null.");
+//                                                if(ques.size()>0 && holderPosition >=0) {
+//
+//                                                    // Parsing the modified date of the current question
+//                                                    mode_date = sdf.parse(ques.get(holderPosition).getModified_date());
+//                                                    Log.d("mode_date", "mode_date: "+mode_date);
+//                                                }
+//                                                // Check that quelistItems has elements and get the modified date safely
+//                                                if (quelistItems.get(0).getModified_date() != null) {
+//                                                    ques_date = sdf.parse(quelistItems.get(0).getModified_date());
+//                                                } else {
+//                                                    Log.e("DateError22", "Modified date for the question list item is null.");
+//                                                    return; // Exit if ques_date is null
+//                                                }
+//
+//                                                if (mode_date != null && ques_date != null) {
+//                                                    // Calculate the difference in milliseconds
+//                                                    long diff2 = mode_date.getTime() - ques_date.getTime();
+//                                                    Log.d("diff2", "diff2: "+diff2);
+//                                                    Log.d("ques_date", "ques_date: "+ques_date);
+//                                                    // Calculate the differences in various units
+//                                                    int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+//                                                    int diffHours2 = (int) (diff2 / (60 * 60 * 1000));
+//                                                    int diffMin2 = (int) (diff2 / (60 * 1000));
+//                                                    int diffSec2 = (int) (diff2 / 1000);
+//
+//                                                    Log.d("updatediff", "diffDays2: " + diffDays2 + ", diffHours: " + diffHours2 + ", diffMin: " + diffMin2 + ", diffSec: " + diffSec2);
+//
+//                                                    // Example condition to trigger getList() call
+//                                                    if (diffHours2 > 0 || diffMin2 > 0 || diffSec2 > 0) { // Adjust logic based on your requirement
+//                                                        getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "1");
+//                                                    }
+//                                                } else {
+//                                                    Log.e("DateError33", "One of the parsed dates is null.");
+//                                                }
+//                                            } catch (ParseException e) {
+//                                                e.printStackTrace();
+//                                                Log.e("DateError44", "Failed to parse dates. Error: " + e.getMessage());
+//                                            }
+//                                        }
+//                                        else {
+//                                            Log.e("DateError55", "Modified date or question list is empty.");
+//                                        }
+//
+//                                    }
+//
+//                                    holder.timer.setTextColor(Color.parseColor("#FFF55625"));
+//
+//                                    //Log.d("exam_id onTick", ques.get(holderPosition).getExamId());
+//                                }
+//                                hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis), TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+//                                holder.timer.setText(hms);//set
+////                                        }
+//                            }
+//
+//                            public void onFinish() {
+//                                holder.startBtn.setVisibility(View.VISIBLE);
+////                                        Toast.makeText(context, "1*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
+//                                List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+//                                if(quelistItems.size()<=0)
+//                                    getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "0");
+//                                Log.d("set get Exam Id", "Exam Id"+ques.get(holder.getAdapterPosition()).getExamId());
+//
+//                                holder.timer_LL.setVisibility(View.GONE);
+//                                holder.expire.setVisibility(View.GONE);
+//                                countDownTimer = null;
+//                            }
+//                        }.start();
                     }
 
                 }

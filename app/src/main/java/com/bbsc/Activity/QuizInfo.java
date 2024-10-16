@@ -347,6 +347,9 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
     }
 
     public void getDBQList(){
+        //added
+        if (listItems != null && !listItems.isEmpty()) {
+            //added end
 
         quizAdapter = new QuizAdapter(QuizInfo.this, listItems);
         LinearLayoutManager llm = new LinearLayoutManager(QuizInfo.this);
@@ -357,21 +360,15 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
         Quizlist.setVisibility(View.VISIBLE);
         quizAdapter.notifyDataSetChanged();
 
+        //added
+        } else {
+            // Handle the empty case, possibly show a message to the user
+            waitLL.setVisibility(View.GONE);
+            Quizlist.setVisibility(View.GONE);
+            errorLL.setVisibility(View.VISIBLE);
+        }
+        //
     }
-
-    public void getOffQuiz()
-    {
-        waitLL.setVisibility(View.GONE);
-        Quizlist.setVisibility(View.VISIBLE);
-        retry.setVisibility(View.GONE);
-        quizAdapter = new QuizAdapter(QuizInfo.this, GetDetail.QuizList);
-        LinearLayoutManager llm = new LinearLayoutManager(QuizInfo.this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        Quizlist.setLayoutManager(llm);
-        Quizlist.setAdapter(quizAdapter);
-        quizAdapter.notifyDataSetChanged();
-    }
-
 
     public void getQuiz() {
         dbManager.open();
@@ -380,7 +377,7 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
         quizCall.enqueue(new Callback<Quiz>() {
             @Override
             public void onResponse(@NotNull Call<Quiz> call, @NotNull Response<Quiz> response) {
-                if (response.body().getData() != null) {
+                if (response.body().getData() != null  && response.body().getData() != null && !response.body().getData().isEmpty()) {
                     dbManager.deleteQuizList();
                     retry.setVisibility(View.GONE);
                     QueResponse = response.body().getData();
@@ -408,25 +405,23 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
                     dbManager.close();
                 } else {
                     Log.e("QuizInfo", "Response body is null");
-                    waitLL.setVisibility(View.GONE);
-                    Quizlist.setVisibility(View.GONE);
-                    errorLL.setVisibility(View.VISIBLE);
-                    retry.setVisibility(View.VISIBLE);
-                    dbManager.close();
+                    handleEmptyQuizResponse();
                 }
             }
 
             @Override
             public void onFailure(@NotNull Call<Quiz> call, @NotNull Throwable t) {
-                waitLL.setVisibility(View.GONE);
-                Quizlist.setVisibility(View.GONE);
-                errorLL.setVisibility(View.VISIBLE);
-                retry.setVisibility(View.VISIBLE);
-                dbManager.close();
+                handleEmptyQuizResponse();
             }
         });
     }
-
+    private void handleEmptyQuizResponse() {
+        waitLL.setVisibility(View.GONE);
+        Quizlist.setVisibility(View.GONE);
+        errorLL.setVisibility(View.VISIBLE);
+        retry.setVisibility(View.VISIBLE);
+        dbManager.close();
+    }
 
 
     public int getStatusBarHeight() {

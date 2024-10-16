@@ -125,8 +125,6 @@ public class DBManager {
             contentValue.put("show_right_answers", String.valueOf(desc1.getShowRightAnswers()));
             contentValue.put("created_by", String.valueOf(desc1.getCreatedBy()));
             contentValue.put("created_date", String.valueOf(desc1.getCreatedDate()));
-
-
             contentValue.put("modified_date", String.valueOf(desc1.getModified_date()));
             contentValue.put("startpublish", String.valueOf(desc1.getStartpublish()));
             contentValue.put("endpublish", String.valueOf(desc1.getEndpublish()));
