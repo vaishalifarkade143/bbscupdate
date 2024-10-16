@@ -172,7 +172,7 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
         simpleProgressBar  = (ProgressBar) findViewById(R.id.simpleProgressBar_internet);
         simpleProgressBar.getIndeterminateDrawable().setColorFilter(Color.parseColor("#EC5252"), PorterDuff.Mode.MULTIPLY);
         listItems = dbManager.getAllQuizzes();
-        dbManager.close();
+
         boolean userLogin = SharedPrefManager.getInstance(this).isLoggedIn();
 
         if(userLogin) {
@@ -337,8 +337,9 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
     @Override
     public void onRestart() {
         super.onRestart();
- if (listItems.size() > 0) {
+        if (listItems.size() > 0) {
             getDBQList();
+            quizAdapter.notifyDataSetChanged();
         }
         else {
             networkStateReceiver = new NetworkStateReceiver();
@@ -360,21 +361,11 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
 
     }
 
-    public void getOffQuiz()
-    {
-        waitLL.setVisibility(View.GONE);
-        Quizlist.setVisibility(View.VISIBLE);
-        retry.setVisibility(View.GONE);
-        quizAdapter = new QuizAdapter(QuizInfo.this, GetDetail.QuizList);
-        LinearLayoutManager llm = new LinearLayoutManager(QuizInfo.this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        Quizlist.setLayoutManager(llm);
-        quizAdapter.notifyDataSetChanged();
-        Quizlist.setAdapter(quizAdapter);
-    }
+
 
 
     public void getQuiz() {
+        dbManager = new DBManager(this);
         dbManager.open();
         Api apiService = RetrofitClient.getApiService();
         Call<Quiz> quizCall = apiService.GetQuiz(String.valueOf(user.getId()));
@@ -383,6 +374,7 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
             public void onResponse(@NotNull Call<Quiz> call, @NotNull Response<Quiz> response) {
                 if (response.body().getData() != null) {
                     dbManager.deleteQuizList();
+
                     retry.setVisibility(View.GONE);
                     QueResponse = response.body().getData();
                     GetDetail.QuizList = QueResponse;
@@ -405,7 +397,7 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
                     waitLL.setVisibility(View.GONE);
                     Quizlist.setVisibility(View.VISIBLE);
                     dbManager.insertQzList("QuizList", QueResponse);
-                    dbManager.close();
+
 
                     quizAdapter.notifyDataSetChanged();
 
@@ -415,8 +407,10 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
                     Quizlist.setVisibility(View.GONE);
                     errorLL.setVisibility(View.VISIBLE);
                     retry.setVisibility(View.VISIBLE);
-                    dbManager.close();
+
                 }
+                dbManager.close();
+
             }
 
             @Override
@@ -427,6 +421,8 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
                 retry.setVisibility(View.VISIBLE);
                 dbManager.close();
             }
+
+
         });
     }
 

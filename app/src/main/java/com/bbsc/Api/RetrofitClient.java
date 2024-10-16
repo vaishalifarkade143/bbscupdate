@@ -23,7 +23,7 @@ public class RetrofitClient {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
             @Override
             public void log(String message) {
-                Log.d("RetrofitLog", message);
+                Log.d("RetrofitLog 15498856", message);
             }
         });
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY); // or BASIC for just URL

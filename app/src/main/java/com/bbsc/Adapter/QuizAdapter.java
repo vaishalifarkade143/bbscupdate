@@ -399,7 +399,12 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                         dbManager.close();
                                     } else {
                                         countDownTimer.cancel();
-                                        toastMsg("Invalid adapter position:"+holderPosition);
+                                        /*toastMsg("Invalid adapter position:"+holderPosition);*/
+
+
+                                        if(holderPosition<0){
+                                            holderPosition = ques.size() -1;
+                                        }
                                     }
 
                                     if(quelistItems.size() <= 0) {
@@ -464,9 +469,11 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                                                     Log.d("updatediff", "diffDays2: " + diffDays2 + ", diffHours: " + diffHours2 + ", diffMin: " + diffMin2 + ", diffSec: " + diffSec2);
 
                                                     // Example condition to trigger getList() call
-                                                    if (diffHours2 > 0 || diffMin2 > 0 || diffSec2 > 0) { // Adjust logic based on your requirement
+                                                    if (diffHours2 > 0 || diffMin2 > 0 || diffSec2 > 0) {
+                                                        Log.d("Time Remaining Zero "," Getting List");
                                                         getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "1");
                                                     }
+
                                                 } else {
                                                     Log.e("DateError", "One of the parsed dates is null.");
                                                 }
@@ -727,12 +734,11 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                 public void onResponse(Call<QlistRes> call, Response<QlistRes> response) {
                     QueResponse = response.body();
                     GetDetail.current_que = QueResponse.getData();
-                    Log.d("Ques_res", new Gson().toJson(QueResponse));
+                    Log.d("Ques_res", new Gson().toJson(QueResponse.getData()));
                     GetDetail.att_data = new JSONArray();
-
                     JSONArray jsonArray = new JSONArray();
                     for (QlistRes.Ques quearr : QueResponse.getData()) {
-                        Log.d("saveToInternalStorage11", "saveToInternalStorage");
+
 
                         if (!quearr.getImage().isEmpty()){
 //                            if (checkPermission()) {
@@ -749,7 +755,9 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                             }
 
                             mSavedInfo = saveToInternalStorage(bitmap, urlString);
-                            Log.d("quearr.getImage()", quearr.getImage());
+
+                            Log.d("saveToInternalStorage11", mSavedInfo);
+
                         }
 
 
@@ -763,6 +771,10 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                     }
 
                     Log.d("att_data***", new Gson().toJson(GetDetail.att_data));
+
+                    Log.d("QueResponse 6458", QueResponse.getData().toString());
+                    Log.d("jsonArray 9548", jsonArray.toString());
+
 
                     SharedPrefManager.getInstance(context).addQuesData(jsonArray.toString(), jsonArray.toString(), QueResponse.getData());
                 }

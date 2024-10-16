@@ -236,6 +236,7 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
         //check this getting the quetion list may be error bcz of getQuizQues
         quelistItems = dbManager.getQuizQues(exam_id);
 
+        dbManager.close();
         Log.d("list Items ques", new Gson().toJson(quelistItems));
         Log.d("Quiz Items List Size", "Size: " + quelistItems.size());
 
@@ -626,7 +627,7 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
         dbManager.close();
 
         // Log the original list size and question IDs
-        Log.d("Original Quiz Items List Size", "Size: " + quelistItems.size());
+        Log.d("Original QuizList Size", "Size: " + quelistItems.size());
         for (QlistRes.Ques ques : quelistItems) {
             Log.d("Original Quiz Item ID", "Question ID: " + ques.getId());
         }
@@ -691,6 +692,7 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
 
         // Show the activity layout
         activityLL.setVisibility(View.VISIBLE);
+
     }
 
 
