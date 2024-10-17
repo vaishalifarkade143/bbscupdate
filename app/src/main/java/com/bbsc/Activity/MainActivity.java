@@ -198,7 +198,6 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
         st_time = bundle.getString("st_time");
         end_date = bundle.getString("end_date");
         end_time = bundle.getString("end_time");
-
         hr = bundle.getString("exam_hr");
         min = bundle.getString("exam_min");
         showtime = bundle.getString("showtime");
@@ -948,6 +947,32 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
 
         // Update att_data with the new attempt number
         JSONArray attData = GetDetail.att_data; // Ensure att_data is properly initialized and not null
+
+
+        //added if attempt is empty n submitQuizcal app crash happen
+        // Validate attempt data to ensure it's not empty or null
+
+//        if (attData == null || attData.length() == 0) {  // Check if attempt data is empty or null
+//            Log.e("SubmitQuiz", "No attempt data found! Navigating to SuccessActivity.");
+//
+//            // If attempt data is empty, just go to SuccessActivity without submitting answers
+//            Intent intent = new Intent(MainActivity.this, QuizInfo.class);
+////            intent.putExtra("submit", "2");  // Indicate quiz submission
+//            intent.putExtra("att_no", String.valueOf(new_attempt_no));  // Pass updated attempt number
+//
+//            // Clear the activity stack to avoid returning to the quiz activity
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//            startActivity(intent);
+//            finish();  // Close current activity
+//            return;  // Exit method to avoid further processing
+//        }
+
+
+
+
+
+
+
         for (int i = 0; i < attData.length(); i++) {
             try {
                 JSONObject attemptObject = attData.getJSONObject(i);

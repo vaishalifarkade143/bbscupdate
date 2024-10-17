@@ -384,7 +384,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 //                                    if(holderPosition<0){
 //                                        holderPosition = ques.size() -1;
 //                                    }
-                                    toastMsg("Invalid adapter position: " + holderPosition);
+//                                    toastMsg("Invalid adapter position: " + holderPosition);
                                     Log.d("adapterposition:", "Invalid:  " + holderPosition);
                                     return; // Early exit if the position is invalid
                                 }
@@ -409,7 +409,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                             }
 
                             private void handleNoQuestions(int holderPosition) {
-                                toastMsg("No questions available for the adapter position: " + holderPosition);
+//                                toastMsg("No questions available for the adapter position: " + holderPosition);
                                 if (ques.isEmpty()) {
                                     getList(ques.get(holderPosition).getExamId(), ques.get(holderPosition).getExam_last_attempt(), "0");
                                 }

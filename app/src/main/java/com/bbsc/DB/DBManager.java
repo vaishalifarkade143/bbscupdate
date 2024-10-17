@@ -100,53 +100,110 @@ public class DBManager {
         }
     }
 
+//    public void insertQzList(String TB, List<Quiz.Qinfo> desc) {
+//        for (Quiz.Qinfo desc1: desc) {
+//            ContentValues contentValue = new ContentValues();
+//            contentValue.put("exam_id", String.valueOf(desc1.getExamId()));
+//            contentValue.put("exam_title", String.valueOf(desc1.getExamTitle()));
+//            contentValue.put("compulsory_que", String.valueOf(desc1.getCompulsory_que()));
+//            contentValue.put("description", String.valueOf(desc1.getDescription()));
+//            contentValue.put("exam_type", String.valueOf(desc1.getExamType()));
+//            contentValue.put("published", String.valueOf(desc1.getPublished()));
+//            contentValue.put("total_marks", String.valueOf(desc1.getTotalMarks()));
+//            contentValue.put("instructions", String.valueOf(desc1.getInstructions()));
+//            contentValue.put("passing_score", String.valueOf(desc1.getPassingScore()));
+//            contentValue.put("pass_feedback", String.valueOf(desc1.getPassFeedback()));
+//            contentValue.put("fail_feedback", String.valueOf(desc1.getFailFeedback()));
+//
+//            contentValue.put("view_score_realtime", String.valueOf(desc1.getViewScoreRealtime()));
+//            contentValue.put("retake", String.valueOf(desc1.getRetake()));
+//            contentValue.put("attempt_limit", String.valueOf(desc1.getAttemptLimit()));
+//            contentValue.put("time_limit_b", String.valueOf(desc1.getTimeLimitB()));
+//            contentValue.put("duration_h", String.valueOf(desc1.getDurationH()));
+//            contentValue.put("duration_m", String.valueOf(desc1.getDurationM()));
+//            contentValue.put("see_result", String.valueOf(desc1.getSeeResult()));
+//            contentValue.put("show_right_answers", String.valueOf(desc1.getShowRightAnswers()));
+//            contentValue.put("created_by", String.valueOf(desc1.getCreatedBy()));
+//            contentValue.put("created_date", String.valueOf(desc1.getCreatedDate()));
+//            contentValue.put("modified_date", String.valueOf(desc1.getModified_date()));
+//            contentValue.put("startpublish", String.valueOf(desc1.getStartpublish()));
+//            contentValue.put("endpublish", String.valueOf(desc1.getEndpublish()));
+//            contentValue.put("ordering", String.valueOf(desc1.getOrdering()));
+//            contentValue.put("exam_category", String.valueOf(desc1.getExamCategory()));
+//            contentValue.put("info_hide", String.valueOf(desc1.getInfoHide()));
+//            contentValue.put("ex_start_date", String.valueOf(desc1.getEx_start_date()));
+//            contentValue.put("ex_end_date", String.valueOf(desc1.getEx_end_date()));
+//            contentValue.put("ex_start_time", String.valueOf(desc1.getEx_start_time()));
+//            contentValue.put("ex_end_time", String.valueOf(desc1.getEx_end_time()));
+//
+////            contentValue.put("department",desc1.getd);
+//            contentValue.put("att", String.valueOf(Integer.parseInt(desc1.getAtt())-1));
+//            contentValue.put("Qcount", String.valueOf(desc1.getQcount()));
+//            try {
+//                database.insert("QuizList", null, contentValue);
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+//        }
+//
+//    }
+
+//added 10/17/24 12:51 solve error
     public void insertQzList(String TB, List<Quiz.Qinfo> desc) {
-        for (Quiz.Qinfo desc1: desc) {
-            ContentValues contentValue = new ContentValues();
-            contentValue.put("exam_id", String.valueOf(desc1.getExamId()));
-            contentValue.put("exam_title", String.valueOf(desc1.getExamTitle()));
-            contentValue.put("compulsory_que", String.valueOf(desc1.getCompulsory_que()));
-            contentValue.put("description", String.valueOf(desc1.getDescription()));
-            contentValue.put("exam_type", String.valueOf(desc1.getExamType()));
-            contentValue.put("published", String.valueOf(desc1.getPublished()));
-            contentValue.put("total_marks", String.valueOf(desc1.getTotalMarks()));
-            contentValue.put("instructions", String.valueOf(desc1.getInstructions()));
-            contentValue.put("passing_score", String.valueOf(desc1.getPassingScore()));
-            contentValue.put("pass_feedback", String.valueOf(desc1.getPassFeedback()));
-            contentValue.put("fail_feedback", String.valueOf(desc1.getFailFeedback()));
-
-            contentValue.put("view_score_realtime", String.valueOf(desc1.getViewScoreRealtime()));
-            contentValue.put("retake", String.valueOf(desc1.getRetake()));
-            contentValue.put("attempt_limit", String.valueOf(desc1.getAttemptLimit()));
-            contentValue.put("time_limit_b", String.valueOf(desc1.getTimeLimitB()));
-            contentValue.put("duration_h", String.valueOf(desc1.getDurationH()));
-            contentValue.put("duration_m", String.valueOf(desc1.getDurationM()));
-            contentValue.put("see_result", String.valueOf(desc1.getSeeResult()));
-            contentValue.put("show_right_answers", String.valueOf(desc1.getShowRightAnswers()));
-            contentValue.put("created_by", String.valueOf(desc1.getCreatedBy()));
-            contentValue.put("created_date", String.valueOf(desc1.getCreatedDate()));
-            contentValue.put("modified_date", String.valueOf(desc1.getModified_date()));
-            contentValue.put("startpublish", String.valueOf(desc1.getStartpublish()));
-            contentValue.put("endpublish", String.valueOf(desc1.getEndpublish()));
-            contentValue.put("ordering", String.valueOf(desc1.getOrdering()));
-            contentValue.put("exam_category", String.valueOf(desc1.getExamCategory()));
-            contentValue.put("info_hide", String.valueOf(desc1.getInfoHide()));
-            contentValue.put("ex_start_date", String.valueOf(desc1.getEx_start_date()));
-            contentValue.put("ex_end_date", String.valueOf(desc1.getEx_end_date()));
-            contentValue.put("ex_start_time", String.valueOf(desc1.getEx_start_time()));
-            contentValue.put("ex_end_time", String.valueOf(desc1.getEx_end_time()));
-
-//            contentValue.put("department",desc1.getd);
-            contentValue.put("att", String.valueOf(Integer.parseInt(desc1.getAtt())-1));
-            contentValue.put("Qcount", String.valueOf(desc1.getQcount()));
-            try {
-                database.insert("QuizList", null, contentValue);
-            }catch (Exception e){
-                e.printStackTrace();
+        try {
+            // Ensure the database is open before inserting
+            if (database == null || !database.isOpen()) {
+                open(); // Open the database if it's not open
             }
-        }
 
+            for (Quiz.Qinfo desc1 : desc) {
+                ContentValues contentValue = new ContentValues();
+                contentValue.put("exam_id", String.valueOf(desc1.getExamId()));
+                contentValue.put("exam_title", String.valueOf(desc1.getExamTitle()));
+                contentValue.put("compulsory_que", String.valueOf(desc1.getCompulsory_que()));
+                contentValue.put("description", String.valueOf(desc1.getDescription()));
+                contentValue.put("exam_type", String.valueOf(desc1.getExamType()));
+                contentValue.put("published", String.valueOf(desc1.getPublished()));
+                contentValue.put("total_marks", String.valueOf(desc1.getTotalMarks()));
+                contentValue.put("instructions", String.valueOf(desc1.getInstructions()));
+                contentValue.put("passing_score", String.valueOf(desc1.getPassingScore()));
+                contentValue.put("pass_feedback", String.valueOf(desc1.getPassFeedback()));
+                contentValue.put("fail_feedback", String.valueOf(desc1.getFailFeedback()));
+                contentValue.put("view_score_realtime", String.valueOf(desc1.getViewScoreRealtime()));
+                contentValue.put("retake", String.valueOf(desc1.getRetake()));
+                contentValue.put("attempt_limit", String.valueOf(desc1.getAttemptLimit()));
+                contentValue.put("time_limit_b", String.valueOf(desc1.getTimeLimitB()));
+                contentValue.put("duration_h", String.valueOf(desc1.getDurationH()));
+                contentValue.put("duration_m", String.valueOf(desc1.getDurationM()));
+                contentValue.put("see_result", String.valueOf(desc1.getSeeResult()));
+                contentValue.put("show_right_answers", String.valueOf(desc1.getShowRightAnswers()));
+                contentValue.put("created_by", String.valueOf(desc1.getCreatedBy()));
+                contentValue.put("created_date", String.valueOf(desc1.getCreatedDate()));
+                contentValue.put("modified_date", String.valueOf(desc1.getModified_date()));
+                contentValue.put("startpublish", String.valueOf(desc1.getStartpublish()));
+                contentValue.put("endpublish", String.valueOf(desc1.getEndpublish()));
+                contentValue.put("ordering", String.valueOf(desc1.getOrdering()));
+                contentValue.put("exam_category", String.valueOf(desc1.getExamCategory()));
+                contentValue.put("info_hide", String.valueOf(desc1.getInfoHide()));
+                contentValue.put("ex_start_date", String.valueOf(desc1.getEx_start_date()));
+                contentValue.put("ex_end_date", String.valueOf(desc1.getEx_end_date()));
+                contentValue.put("ex_start_time", String.valueOf(desc1.getEx_start_time()));
+                contentValue.put("ex_end_time", String.valueOf(desc1.getEx_end_time()));
+                contentValue.put("att", String.valueOf(Integer.parseInt(desc1.getAtt()) - 1));
+                contentValue.put("Qcount", String.valueOf(desc1.getQcount()));
+
+                // Perform the insert operation
+                database.insert("QuizList", null, contentValue);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Always close the database after operations to avoid memory leaks
+            close();
+        }
     }
+
 
 
 //    public void insertQzList(String TB, List<Quiz.Qinfo> desc) {
@@ -296,13 +353,28 @@ public void updateQuizList(String ex_id, String attempt) {
     }
 }
 
+//    public void deleteQuizList() {
+//        try {
+//            database.delete("QuizList", null, null);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//    }
+
+
+    //added 10/17/24 12:51 solve error
+    // Delete data from the QuizList table
     public void deleteQuizList() {
         try {
-            database.delete("QuizList", null, null);
-        }catch (Exception e){
+            open(); // Open the database before performing the delete
+            database.delete(DatabaseHelper.TABLE_NAME, null, null); // Perform the delete operation
+        } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            close(); // Close the database after the operation is done
         }
     }
+
 
 
     public List<Quiz.Qinfo> getAllQuizzes() {
