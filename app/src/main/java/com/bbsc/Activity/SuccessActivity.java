@@ -233,20 +233,16 @@ public class SuccessActivity extends AppCompatActivity implements NetworkStateRe
         call.enqueue(new Callback<Qsubmit>() {
             @Override
             public void onResponse(@NotNull Call<Qsubmit> call, @NotNull Response<Qsubmit> response) {
+                Log.d("API Response 1", "Response Code: " + response.code());
+                Log.d("Submit_respons is:", new Gson().toJson(response.body()));
 
-                if(response.body() != null){
+                waitLL.setVisibility(View.GONE);
 
-                    Log.d("API Response 1", "Response Code: " + response.code());
-                    Log.d("Submit_respons is:", new Gson().toJson(response.body()));
-
-                    waitLL.setVisibility(View.GONE);
-
-                    if (response.isSuccessful()) {
-                        Qsubmit res = response.body();
+                if (response.isSuccessful()) {
+                    Qsubmit res = response.body();
 
 
 
-<<<<<<< Updated upstream
                     if (res == null) {
                         Log.e("Submit Error", "Response body is null");
                         Toast.makeText(SuccessActivity.this, "Failed to receive a valid response", Toast.LENGTH_SHORT).show();
@@ -287,81 +283,28 @@ public class SuccessActivity extends AppCompatActivity implements NetworkStateRe
 
                         } catch (JSONException e) {
                             Log.e("Update Error", e.getMessage());
-=======
-                        if (res == null) {
-                            Log.e("Submit Error", "Response body is null");
-                            Toast.makeText(SuccessActivity.this, "Failed to receive a valid response", Toast.LENGTH_SHORT).show();
-                            errorLL.setVisibility(View.VISIBLE);
-                            return;
->>>>>>> Stashed changes
                         }
 
-                        if (res.getError()) {
-                            Toast.makeText(SuccessActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
-                            errorLL.setVisibility(View.VISIBLE);
-                        } else {
-                            // Update user status and quiz attempt
-                            String examTitle = exam_title != null ? exam_title : "";  // Default empty string if null
-                            JSONArray attData = GetDetail.att_data != null ? GetDetail.att_data : new JSONArray();  // Empty if null
-                            String attemptNumber = att_no != null ? att_no : "1";  // Default attempt number
-
-                            SharedPrefManager.getInstance(SuccessActivity.this).editUser2(0, examTitle, attData, attemptNumber);
-
-                            // Assuming att_data contains the quiz attempt data
-                            JSONArray jsonArray = GetDetail.att_data;
-
-                            try {
-                                JSONObject jsonObject = jsonArray.getJSONObject(0);  // Get the first object
-                                Log.d("session_exam_id", String.valueOf(jsonObject.get("exam_id")));
-
-                                // Get the current attempt number and exam ID
-                                int currentAttempt = jsonObject.getInt("attempt_no");
-                                String examId = String.valueOf(jsonObject.get("exam_id"));
-
-                                // Increment the attempt number
-                                int newAttempt = currentAttempt + 1;
-
-                                // Update the quiz list in the database with the incremented attempt
-                                dbManager.updateQuizList(examId, String.valueOf(newAttempt)); // Pass the new attempt number as a String
-                                Log.d("New Attempt Number", "Attempt number updated to: " + newAttempt);
-
-                            } catch (JSONException e) {
-                                Log.e("Update Error", e.getMessage());
-                            }
-
-                            Toast.makeText(SuccessActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
-                            resultLL.setVisibility(View.VISIBLE);
-                            errorLL.setVisibility(View.GONE);
-                            showResult(res.getData());
-                        }
-                    } else {
-                        Log.e("Submit Error", "Response not successful: " + response.code());
-                        Toast.makeText(SuccessActivity.this, "Failed to submit. Server error.", Toast.LENGTH_SHORT).show();
-                        errorLL.setVisibility(View.VISIBLE);
-
-                        Intent mainActivityIntent = new Intent(SuccessActivity.this, MainActivity.class);
-                        mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear the stack
-                        startActivity(mainActivityIntent); // Start MainActivity
-                        finish(); // Finish SecondActivity
-
-
-
-
-
+                        Toast.makeText(SuccessActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                        resultLL.setVisibility(View.VISIBLE);
+                        errorLL.setVisibility(View.GONE);
+                        showResult(res.getData());
                     }
-
-                }else{
-                    Log.e("Submit Error 2", "Response not successful: " + response.code());
-                    Toast.makeText(SuccessActivity.this, "Failed to submit2. Server error.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e("Submit Error", "Response not successful: " + response.code());
+                    Toast.makeText(SuccessActivity.this, "Failed to submit. Server error.", Toast.LENGTH_SHORT).show();
                     errorLL.setVisibility(View.VISIBLE);
 
                     Intent mainActivityIntent = new Intent(SuccessActivity.this, MainActivity.class);
                     mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear the stack
                     startActivity(mainActivityIntent); // Start MainActivity
                     finish(); // Finish SecondActivity
+
+
+
+
+
                 }
-
-
             }
 
             @Override
