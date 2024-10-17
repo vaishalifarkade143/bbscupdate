@@ -172,6 +172,7 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
         simpleProgressBar  = (ProgressBar) findViewById(R.id.simpleProgressBar_internet);
         simpleProgressBar.getIndeterminateDrawable().setColorFilter(Color.parseColor("#EC5252"), PorterDuff.Mode.MULTIPLY);
         listItems = dbManager.getAllQuizzes();
+
         boolean userLogin = SharedPrefManager.getInstance(this).isLoggedIn();
 
         if(userLogin) {
@@ -336,8 +337,9 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
     @Override
     public void onRestart() {
         super.onRestart();
- if (listItems.size() > 0) {
+        if (listItems.size() > 0) {
             getDBQList();
+            quizAdapter.notifyDataSetChanged();
         }
         else {
             networkStateReceiver = new NetworkStateReceiver();
@@ -371,6 +373,7 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
     }
 
     public void getQuiz() {
+        dbManager = new DBManager(this);
         dbManager.open();
         Api apiService = RetrofitClient.getApiService();
         Call<Quiz> quizCall = apiService.GetQuiz(String.valueOf(user.getId()));
@@ -379,6 +382,7 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
             public void onResponse(@NotNull Call<Quiz> call, @NotNull Response<Quiz> response) {
                 if (response.body().getData() != null  && response.body().getData() != null && !response.body().getData().isEmpty()) {
                     dbManager.deleteQuizList();
+
                     retry.setVisibility(View.GONE);
                     QueResponse = response.body().getData();
                     GetDetail.QuizList = QueResponse;
@@ -400,9 +404,11 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
                     Quizlist.setAdapter(quizAdapter);
                     waitLL.setVisibility(View.GONE);
                     Quizlist.setVisibility(View.VISIBLE);
-                    quizAdapter.notifyDataSetChanged();
                     dbManager.insertQzList("QuizList", QueResponse);
-                    dbManager.close();
+
+
+                    quizAdapter.notifyDataSetChanged();
+
                 } else {
                     Log.e("QuizInfo", "Response body is null");
                     handleEmptyQuizResponse();

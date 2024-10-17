@@ -80,12 +80,17 @@ public class DBManager {
             contentValue.put("datetime", currentDate+" "+currentTime);
             try {
                 long rowInserted = database.insert("Questions", null, contentValue);
-                if(rowInserted != -1)
+                if(rowInserted != -1){
                     Log.d("got round", "insertQuesList call ");
 //                    Toast.makeText(context, "New row added, row id: " + rowInserted, Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(context, "Something wrong", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Log.d("got round", "insertQuesList call ");
+                    //Toast.makeText(context, "Something wrong insertQuesList", Toast.LENGTH_SHORT).show();
+                }
+
             }catch (Exception e){
+                Log.d("Errorin inserting", "insertQuesList call ");
                 e.printStackTrace();
             }
         }

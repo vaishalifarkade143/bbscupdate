@@ -231,7 +231,6 @@
                 android:textStyle="bold"
                 android:textSize="@dimen/dimen_18dp"
                 android:layout_toStartOf="@+id/timer"
-                android:text="Time left to start: "
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 card_view:drawableStartCompat="@drawable/ic_clock_24" />

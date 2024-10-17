@@ -22,7 +22,7 @@ package com.bbsc.Adapter;
         import android.view.ViewGroup;
         import android.widget.Button;
         import android.widget.LinearLayout;
-        import android.widget.RadioGroup;
+        //import android.widget.RadioGroup;
         import android.widget.TextView;
         import android.widget.Toast;
 
@@ -32,7 +32,7 @@ package com.bbsc.Adapter;
         import androidx.recyclerview.widget.RecyclerView;
 
         import com.bbsc.Activity.MainActivity;
-        import com.bbsc.Activity.QuizListActivity;
+        //import com.bbsc.Activity.QuizListActivity;
         import com.bbsc.Api.Api;
         import com.bbsc.Api.RetrofitClient;
         import com.bbsc.DB.DBManager;
@@ -50,12 +50,12 @@ package com.bbsc.Adapter;
         import java.io.FileOutputStream;
         import java.io.IOException;
         import java.net.URL;
-        import java.text.DateFormat;
+        //import java.text.DateFormat;
         import java.text.DecimalFormat;
         import java.text.ParseException;
         import java.text.SimpleDateFormat;
-        import java.time.ZonedDateTime;
-        import java.util.Calendar;
+        //import java.time.ZonedDateTime;
+        //import java.util.Calendar;
         import java.util.Date;
         import java.util.List;
         import java.util.Locale;
@@ -75,9 +75,9 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
     Context context;
     List<Quiz.Qinfo> ques;
-    RadioGroup.LayoutParams rprms;
-    Calendar calendar;
-    DateFormat formatter ;
+    //RadioGroup.LayoutParams rprms;
+    //Calendar calendar;
+    //DateFormat formatter ;
     CountDownTimer countDownTimer = null;
     User user;
     List<Quiz.Qinfo> listItems;
@@ -239,6 +239,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 //                            Toast.makeText(context, "3*"+GetDetail.att_data.length(), Toast.LENGTH_SHORT).show();
 
                     List<QlistRes.Ques> quelistItems = dbManager.getQuizQues(ques.get(holder.getAdapterPosition()).getExamId());
+                    dbManager.close();
                     if(quelistItems.size()<=0)
                         getList(ques.get(holder.getAdapterPosition()).getExamId(), ques.get(holder.getAdapterPosition()).getExam_last_attempt(), "0");
                     else {
@@ -251,14 +252,24 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
                             try {
                                 // Parsing the modified date of the current question
-                                mode_date = sdf.parse(ques.get(holder.getAdapterPosition()).getModified_date());
+                                String myDate = ques.get(holder.getAdapterPosition()).getModified_date();
+
+                                mode_date = sdf.parse(myDate);
 
                                 // Check that quelistItems has elements and get the modified date safely
                                 if (quelistItems.get(0).getModified_date() != null) {
                                     ques_date = sdf.parse(quelistItems.get(0).getModified_date());
                                 } else {
-                                    Log.e("DateError", "Modified date for the question list item is null.");
+                                    Log.e("DateError", "Modified date for the question list item is null. 259");
                                     return; // Exit if ques_date is null
+                                }
+
+                                if(mode_date == null){
+                                    Log.d("mode_date","Test1");
+                                }
+
+                                if(ques_date == null){
+                                    Log.d("ques_date","Test2");
                                 }
 
                                 if (mode_date != null && ques_date != null) {
@@ -338,12 +349,12 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                     System.out.println(dateObj1);
                     System.out.println(dateObj2 + "\n");
 
-                    DecimalFormat crunchifyFormatter2 = new DecimalFormat("###,###");
+                    //DecimalFormat crunchifyFormatter2 = new DecimalFormat("###,###");
 
                     // getTime() returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date object
                     long diff2 = dateObj3.getTime() - dateObj4.getTime();
 
-                    int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
+                    //int diffDays2 = (int) (diff2 / (24 * 60 * 60 * 1000));
 
                     int diffhours2 = (int) (diff2 / (60 * 60 * 1000));
 
@@ -367,8 +378,9 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                             holder.expire.setText("Submited.");
                             holder.expire.setTextColor(Color.parseColor("#FF008000"));
                         }
-                        else
+                        else {
                             holder.expire.setText("Expired");
+                        }
                     } else {
                         holder.startBtn.setVisibility(View.GONE);
                         holder.timer_LL.setVisibility(View.VISIBLE);
@@ -636,6 +648,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
 
                     holder.timer_LL.setVisibility(View.GONE);
                     holder.expire.setVisibility(View.GONE);
+                    dbManager.close();
                 }
                 else{
                     holder.startBtn.setVisibility(View.GONE);
@@ -645,6 +658,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                     holder.expire.setTextColor(Color.parseColor("#FF008000"));
 
                 }
+
             }
             else{
                 holder.startBtn.setVisibility(View.GONE);
@@ -667,6 +681,7 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                     toastMsg("Check internet connection!");
                 }
                 else{
+
                     Date dateObj3 = null, dateObj4 = null;
                     try {
                         dateObj3 = sdf.parse(ques.get(holder.getAdapterPosition()).getEx_end_date() + " " + ques.get(holder.getAdapterPosition()).getEx_end_time());
@@ -794,12 +809,11 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                 public void onResponse(Call<QlistRes> call, Response<QlistRes> response) {
                     QueResponse = response.body();
                     GetDetail.current_que = QueResponse.getData();
-                    Log.d("Ques_res", new Gson().toJson(QueResponse));
+                    Log.d("Ques_res", new Gson().toJson(QueResponse.getData()));
                     GetDetail.att_data = new JSONArray();
-
                     JSONArray jsonArray = new JSONArray();
                     for (QlistRes.Ques quearr : QueResponse.getData()) {
-                        Log.d("saveToInternalStorage11", "saveToInternalStorage");
+
 
                         if (!quearr.getImage().isEmpty()){
 //                            if (checkPermission()) {
@@ -816,7 +830,9 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                             }
 
                             mSavedInfo = saveToInternalStorage(bitmap, urlString);
-                            Log.d("quearr.getImage()", quearr.getImage());
+
+                            Log.d("saveToInternalStorage11", mSavedInfo);
+
                         }
 
 
@@ -830,6 +846,10 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.ViewHolder> {
                     }
 
                     Log.d("att_data***", new Gson().toJson(GetDetail.att_data));
+
+                    Log.d("QueResponse 6458", QueResponse.getData().toString());
+                    Log.d("jsonArray 9548", jsonArray.toString());
+
 
                     SharedPrefManager.getInstance(context).addQuesData(jsonArray.toString(), jsonArray.toString(), QueResponse.getData());
                 }

@@ -574,17 +574,3 @@ public class SuccessActivity extends AppCompatActivity implements NetworkStateRe
         // Implement if needed
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
