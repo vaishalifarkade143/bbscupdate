@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
     RelativeLayout Qlayout;
     ProgressBar progressBar;
     CountDownTimer countDownTimer = null;
-    boolean submitQuiz = true;
+    boolean submitQuiz = false;
     boolean getque=true;
     boolean addAtt = true;
     String hms;
@@ -170,6 +170,7 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
 
         sdf = new SimpleDateFormat(format);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT+5:30"));
+        submitQuiz = false;
 
 
 //added bcz not to get crash
@@ -185,32 +186,34 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
             String att_no = bundle.getString("att_no");
             Log.d("att_no inside if", "att_no is: "+att_no);
             tot_att.setText(att_no);
+            exam_id = bundle.getString("exam_id");
+            exam_title = bundle.getString("exam_title");
+            title.setText("Quiz : "+exam_title);
+            Log.d("exam_title outside if", "exam_title is: "+exam_title);
+            st_date = bundle.getString("st_date");
+            st_time = bundle.getString("st_time");
+            end_date = bundle.getString("end_date");
+            end_time = bundle.getString("end_time");
+
+            hr = bundle.getString("exam_hr");
+            min = bundle.getString("exam_min");
+            showtime = bundle.getString("showtime");
+            seeresult = bundle.getString("seeresult");
+
+            att_no = bundle.getString("att_no");
+
+            tot_att.setText(att_no);
+            Log.d("att_no outside if", "att_no is: "+att_no);
         } else {
             Log.e("MainActivity", "No extras found in intent!");
+            
         }
 
 
-        exam_id = bundle.getString("exam_id");
-        exam_title = bundle.getString("exam_title");
-        title.setText("Quiz : "+exam_title);
-        Log.d("exam_title outside if", "exam_title is: "+exam_title);
-        st_date = bundle.getString("st_date");
-        st_time = bundle.getString("st_time");
-        end_date = bundle.getString("end_date");
-        end_time = bundle.getString("end_time");
-
-        hr = bundle.getString("exam_hr");
-        min = bundle.getString("exam_min");
-        showtime = bundle.getString("showtime");
-        seeresult = bundle.getString("seeresult");
-
-        att_no = bundle.getString("att_no");
-        //for attempt field
-        tot_att.setText(att_no);
-        Log.d("att_no outside if", "att_no is: "+att_no);
 
 
-        if(showtime.equals("1"))
+
+        if(showtime != null && showtime.equals("1"))
 //        if ("1".equals(showtime))
         {
             tmTxt.setVisibility(View.VISIBLE);
@@ -222,61 +225,78 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
                 getSys_time();//may be error
         }
         else {
+
             tmTxt.setVisibility(View.GONE);
             timer.setVisibility(View.GONE);
 //            tmTxt.setVisibility(View.GONE);
 
         }
 
-        cw = new ContextWrapper(getApplicationContext());
 
-        dbManager = new DBManager(this);
-        dbManager.open();
+        if(exam_id != null){
 
+<<<<<<< Updated upstream
         //check this getting the quetion list may be error bcz of getQuizQues
         quelistItems = dbManager.getQuizQues(exam_id);
 
         dbManager.close();
         Log.d("list Items ques", new Gson().toJson(quelistItems));
         Log.d("Quiz Items List Size", "Size: " + quelistItems.size());
+=======
+            cw = new ContextWrapper(getApplicationContext());
+>>>>>>> Stashed changes
 
 
-        GetDetail.current_que = quelistItems;
-        JSONArray jsonArray = new JSONArray();
+            dbManager = new DBManager(this);
+            dbManager.open();
 
-        for (QlistRes.Ques quearr : quelistItems) {
+            //check this getting the quetion list may be error bcz of getQuizQues
+            quelistItems = dbManager.getQuizQues(exam_id);
 
-            JSONObject attempt_arr = new JSONObject();
-            try {
-                Log.d("Ques Data", new Gson().toJson(quearr)); // Log individual question data
-                attempt_arr.put("que_id", quearr.getId());
-                attempt_arr.put("exam_id", exam_id);
-                attempt_arr.put("stud_id", user.getId());
-                attempt_arr.put("pro_id", "10");
-                attempt_arr.put("correct_ans", "");
-                attempt_arr.put("stud_given_ans", "");
-                attempt_arr.put("is_correct", "0");
-                attempt_arr.put("attempt_no", att_no);
-                attempt_arr.put("ans_marks", "0");
-                // Log JSON object before adding it to array
-                Log.d("JSON Attempt Object", attempt_arr.toString());
+            Log.d("list Items ques", new Gson().toJson(quelistItems));
+            Log.d("Quiz Items List Size", "Size: " + quelistItems.size());
 
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+
+            GetDetail.current_que = quelistItems;
+            JSONArray jsonArray = new JSONArray();
+
+            for (QlistRes.Ques quearr : quelistItems) {
+
+                JSONObject attempt_arr = new JSONObject();
+                try {
+                    Log.d("Ques Data", new Gson().toJson(quearr)); // Log individual question data
+                    attempt_arr.put("que_id", quearr.getId());
+                    attempt_arr.put("exam_id", exam_id);
+                    attempt_arr.put("stud_id", user.getId());
+                    attempt_arr.put("pro_id", "10");
+                    attempt_arr.put("correct_ans", "");
+                    attempt_arr.put("stud_given_ans", "");
+                    attempt_arr.put("is_correct", "0");
+                    attempt_arr.put("attempt_no", att_no);
+                    attempt_arr.put("ans_marks", "0");
+                    // Log JSON object before adding it to array
+                    Log.d("JSON Attempt Object", attempt_arr.toString());
+
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                jsonArray.put(attempt_arr);
+
             }
-            jsonArray.put(attempt_arr);
+
+            Log.d("att_data Length", "Populated Length: " + GetDetail.att_data.length());
+            GetDetail.att_data = jsonArray;
+
+            //correct
+            Log.d("att_data2222", new Gson().toJson(GetDetail.att_data));
+
+            //incorrect data
+            Log.d("current_que222", new Gson().toJson(GetDetail.current_que));
 
         }
 
-        Log.d("att_data Length", "Populated Length: " + GetDetail.att_data.length());
-        GetDetail.att_data = jsonArray;
 
-        //correct
-        Log.d("att_data2222", new Gson().toJson(GetDetail.att_data));
-
-        //incorrect data
-        Log.d("current_que222", new Gson().toJson(GetDetail.current_que));
 
 
         submit.setOnClickListener(new View.OnClickListener() {
@@ -606,7 +626,9 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
 
             public void onFinish() {
                 if(submitQuiz)
+                {
                     SubmitQuiz();
+                }
                 timer.setText("TIME'S UP!!"); //On finish change timer text
                 Log.d("hms::::::", "TIME'S UP!!");
                 countDownTimer.cancel();
@@ -627,7 +649,11 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
         dbManager.close();
 
         // Log the original list size and question IDs
+<<<<<<< Updated upstream
         Log.d("Original QuizList Size", "Size: " + quelistItems.size());
+=======
+        Log.d("OriginalQuizListSize", "Size: " + quelistItems.size());
+>>>>>>> Stashed changes
         for (QlistRes.Ques ques : quelistItems) {
             Log.d("Original Quiz Item ID", "Question ID: " + ques.getId());
         }
@@ -644,7 +670,7 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
         }
 
         // Log filtered list size and question IDs to confirm no duplicates
-        Log.d("Filtered Quiz Items List Size", "Size: " + filteredQuestions.size());
+        Log.d("Filtered Quiz List Size", "Size: " + filteredQuestions.size());
         for (QlistRes.Ques ques : filteredQuestions) {
             Log.d("Filtered Quiz Item ID", "Question ID: " + ques.getId());
         }
@@ -971,7 +997,7 @@ public class MainActivity extends AppCompatActivity  implements NetworkStateRece
         intent.putExtra("att_data", new Gson().toJson(attData));  // Pass the selected answers
         intent.putExtra("att_no", String.valueOf(new_attempt_no));  // Pass updated att_no as a String
 
-        Log.d("Submission Data attDataJson:", new Gson().toJson(attData));
+        Log.d("Submisn attDataJson:", new Gson().toJson(attData));
         Log.d("Submission Data att_no:", String.valueOf(new_attempt_no)); // Log the updated attempt number
 
         // Clear the activity stack

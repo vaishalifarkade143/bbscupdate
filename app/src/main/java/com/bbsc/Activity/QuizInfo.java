@@ -374,7 +374,11 @@ public class QuizInfo extends AppCompatActivity implements ActivityCompat.OnRequ
             public void onResponse(@NotNull Call<Quiz> call, @NotNull Response<Quiz> response) {
                 if (response.body().getData() != null) {
                     dbManager.deleteQuizList();
+<<<<<<< Updated upstream
 
+=======
+                    dbManager.deleteQuestion();
+>>>>>>> Stashed changes
                     retry.setVisibility(View.GONE);
                     QueResponse = response.body().getData();
                     GetDetail.QuizList = QueResponse;
